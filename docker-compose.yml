@@ -1,0 +1,12 @@
+version: '2'
+
+volumes:
+  elasticsearch_data: {}
+
+services:
+  elasticsearch:
+    build: .
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "127.0.0.1:9200:9200"
