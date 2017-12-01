@@ -19,6 +19,7 @@ package io.tinyauth.elasticsearch;
 
 import java.util.Arrays;
 import java.util.List;
+import java.io.IOException;
 
 import org.apache.logging.log4j.Logger;
 
@@ -59,10 +60,14 @@ import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.MultiSearchRequest;
 import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.ElasticsearchSecurityException;
 
 import java.util.Set;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+
+import static org.elasticsearch.common.xcontent.XContentFactory.*;
 
 import static io.tinyauth.elasticsearch.RequestToIndices.getIndices;
 
@@ -88,11 +93,27 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
                                                                                      Request request,
                                                                                      ActionListener<Response> listener,
                                                                                      ActionFilterChain<Request, Response> chain) {
-    logger.error(action);
-    Set<String> indices = getIndices(request);
-    logger.error(String.join(" ", indices));
 
-    logger.error("AUTHENTICATION NOT IMPLEMENTED YET");
-    chain.proceed(task, action, request, listener);
+    try {
+        XContentBuilder builder = jsonBuilder()
+          .startObject()
+              .field("Action", action)
+              .field("Resources", getIndices(request))
+              .startArray("Headers")
+              .endArray()
+              .startObject("Context")
+              .endObject()
+          .endObject();
+
+        logger.error(builder.string());
+    } catch (IOException e) {
+       listener.onFailure(new ElasticsearchSecurityException("Unexpected exception", RestStatus.INTERNAL_SERVER_ERROR));
+       logger.error("IO error while building auth request for " + action);
+    }
+
+    // chain.proceed(task, action, request, listener);
+
+    listener.onFailure(new ElasticsearchSecurityException("no permissions for user", RestStatus.FORBIDDEN));
+
   }
 }
