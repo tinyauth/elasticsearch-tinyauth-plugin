@@ -21,7 +21,9 @@ import org.elasticsearch.plugins.ActionPlugin;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.rest.RestHandler;
 import org.elasticsearch.action.support.ActionFilter;
+import org.elasticsearch.common.util.concurrent.ThreadContext;
 
+import java.util.function.UnaryOperator;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
@@ -30,5 +32,14 @@ public class TinyauthPlugin extends Plugin implements ActionPlugin {
   @Override
   public List<Class<? extends ActionFilter>> getActionFilters() {
       return Collections.singletonList(TinyauthActionFilter.class);
+  }
+  
+  @Override
+  public UnaryOperator<RestHandler> getRestHandlerWrapper(ThreadContext threadContext) {
+    return restHandler -> (RestHandler) (request, channel, client) -> {
+      threadContext.putHeader("Host", request.header("Host"));
+      threadContext.putHeader("Authorization", request.header("Authorization"));
+      restHandler.handleRequest(request, channel, client);
+    };
   }
 }

@@ -33,6 +33,15 @@ esplugin {
 // they are just here as an example
 dependencies {
   compile 'org.elasticsearch:elasticsearch:5.5.2'
+  compile 'org.json:json:20141113'
+  compile 'com.mashape.unirest:unirest-java:1.4.9'
+  compile 'org.apache.httpcomponents:httpcore:4.3'
+  compile 'org.apache.httpcomponents:httpcore-nio:4.3'
+  compile 'org.apache.httpcomponents:httpclient:4.3.6'
+  compile 'org.apache.httpcomponents:httpasyncclient:4.0.2'
+  compile 'org.apache.httpcomponents:httpmime:4.3.6'  
+  compile 'commons-logging:commons-logging:1.1.1'
+
   testCompile 'org.elasticsearch.test:framework:5.5.2'
 }
 
