@@ -1,10 +1,10 @@
 /*
  * Copyright 2017 tinyauth.io
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 
 package io.tinyauth.elasticsearch;
@@ -61,9 +61,7 @@ import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.MultiSearchRequest;
 import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.ElasticsearchSecurityException;
-import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 
 import com.mashape.unirest.http.Unirest;
@@ -78,6 +76,8 @@ import org.json.JSONException;
 import java.util.Set;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+
+import io.tinyauth.elasticsearch.exceptions.ConnectionError;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.*;
 import static io.tinyauth.elasticsearch.RequestToIndices.getIndices;
@@ -108,7 +108,7 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
                                                                                      ActionFilterChain<Request, Response> chain) {
     String body = "";
 
-    ThreadContext threadContext = threadPool.getThreadContext();    
+    ThreadContext threadContext = threadPool.getThreadContext();
     logger.error(threadContext.getHeader("authorization"));
 
     try {
@@ -132,11 +132,9 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
 
         logger.error(body);
     } catch (IOException e) {
-       listener.onFailure(new ElasticsearchSecurityException("Unexpected exception", RestStatus.INTERNAL_SERVER_ERROR));
+       listener.onFailure(new ConnectionError("Unexpected exception"));
        logger.error("IO error while building auth request for " + action);
     }
-    
-    logger.error("STARTING UNIREST CALL");
 
     Unirest.post("http://tinyauth:5000/api/v1/authorize")
       .basicAuth("gatekeeper", "keymaster")
@@ -147,9 +145,9 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
         @Override
         public void failed(UnirestException e) {
           logger.error("The request failed" + e);
-          listener.onFailure(new ElasticsearchSecurityException("The authorization could not be completed", RestStatus.INTERNAL_SERVER_ERROR));
+          listener.onFailure(new ConnectionError("The authorization could not be completed");
         }
-        
+
         @Override
         public void completed(HttpResponse<String> response) {
           logger.error("The request completed\n" + response.getBody());
@@ -165,7 +163,7 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
             }
           } catch (JSONException e) {
             logger.error(e);
-            listener.onFailure(new ElasticsearchSecurityException("Authentication failed", RestStatus.INTERNAL_SERVER_ERROR));
+            listener.onFailure(new ConnectionError("Authentication failed"));
             return;
           }
         }
@@ -173,9 +171,8 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
         @Override
         public void cancelled() {
           logger.error("The request was cancelled");
-          listener.onFailure(new ElasticsearchSecurityException("The authorization was cancelled", RestStatus.INTERNAL_SERVER_ERROR));
+          listener.onFailure(new ConnectionError("The authorization was cancelled"));
         }
       });
-    logger.error("FINISH UNIREST CALL");
   }
 }
