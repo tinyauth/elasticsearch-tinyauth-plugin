@@ -74,6 +74,7 @@ import org.json.JSONObject;
 import org.json.JSONException;
 
 import java.util.Set;
+import java.util.Map;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
@@ -107,9 +108,7 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
                                                                                      ActionListener<Response> listener,
                                                                                      ActionFilterChain<Request, Response> chain) {
     String body = "";
-
     ThreadContext threadContext = threadPool.getThreadContext();
-    logger.error(threadContext.getHeader("authorization"));
 
     try {
         XContentBuilder builder = jsonBuilder()
@@ -118,8 +117,11 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
           .field("resource", "")
           .startArray("headers");
 
-        for (String key : threadContext.getHeaders().keySet()) {
-            builder = builder.startArray().value(key).value(threadContext.getHeader(key)).endArray();
+        Map<String,List<String>> headers = threadContext.getTransient("_tinyauth_request");
+        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+          for (String value : entry.getValue()) {
+            builder = builder.startArray().value(entry.getKey()).value(value).endArray();
+          }
         }
 
         builder = builder.endArray()
@@ -145,7 +147,7 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
         @Override
         public void failed(UnirestException e) {
           logger.error("The request failed" + e);
-          listener.onFailure(new ConnectionError("The authorization could not be completed");
+          listener.onFailure(new ConnectionError("The authorization could not be completed"));
         }
 
         @Override
