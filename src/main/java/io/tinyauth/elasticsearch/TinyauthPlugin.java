@@ -28,6 +28,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
 
+import java.net.InetSocketAddress;
+import java.net.InetAddress;
+
+
 public class TinyauthPlugin extends Plugin implements ActionPlugin {
   @Override
   public List<Class<? extends ActionFilter>> getActionFilters() {
@@ -37,6 +41,10 @@ public class TinyauthPlugin extends Plugin implements ActionPlugin {
   @Override
   public UnaryOperator<RestHandler> getRestHandlerWrapper(ThreadContext threadContext) {
     return restHandler -> (RestHandler) (request, channel, client) -> {
+      InetSocketAddress socketAddress = (InetSocketAddress) request.getRemoteAddress();
+      InetAddress inetAddress = socketAddress.getAddress();
+      threadContext.putTransient("_tinyauth_remote_ip", inetAddress.getHostAddress());
+
       threadContext.putTransient("_tinyauth_request", request.getHeaders());
       restHandler.handleRequest(request, channel, client);
     };

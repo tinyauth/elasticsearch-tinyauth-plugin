@@ -126,7 +126,7 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
 
         builder = builder.endArray()
           .startObject("context")
-          .field("SourceIp", request.remoteAddress())
+          .field("SourceIp", (String) threadContext.getTransient("_tinyauth_remote_ip"))
           .endObject()
           .endObject();
 
