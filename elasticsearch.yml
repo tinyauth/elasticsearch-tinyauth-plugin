@@ -1,0 +1,10 @@
+http.host: 0.0.0.0
+
+# Uncomment the following lines for a production cluster deployment
+#transport.host: 0.0.0.0
+#discovery.zen.minimum_master_nodes: 1
+# 
+
+tinyauth.endpoint: https://tinyauth:5000/
+tinyauth.access_key_id: gatekeeper
+tinyauth.secret_access_key: keymaster

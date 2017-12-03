@@ -24,6 +24,6 @@ RUN gradle assemble
 
 FROM elasticsearch:5.5.2
 
-COPY log4j2.properties /config/log4j2.properties
+COPY elasticsearch.yml /usr/share/elasticsearch/config/elasticsearch.yml
 COPY --from=builder /src/build/distributions/tinyauth-0.0.1-SNAPSHOT.zip /
 RUN elasticsearch-plugin install file:/tinyauth-0.0.1-SNAPSHOT.zip

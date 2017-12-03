@@ -115,6 +115,11 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
                                                                                      Request request,
                                                                                      ActionListener<Response> listener,
                                                                                      ActionFilterChain<Request, Response> chain) {
+    if (action.startsWith("internal")) {
+      logger.debug("No authentication required for internal requests");
+      return;
+    }
+
     if (endpoint == null || access_key_id == null || secret_access_key == null) {
       logger.error("Authentication endpoint for tinyauth not configured");
       listener.onFailure(new ConnectionError("Authentication not attempted"));
