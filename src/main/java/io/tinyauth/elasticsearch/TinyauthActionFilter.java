@@ -90,10 +90,18 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
   private static final Logger logger = Loggers.getLogger(TinyauthActionFilter.class);
   private final ThreadPool threadPool;
 
+  private String endpoint;
+  private String access_key_id;
+  private String secret_access_key;
+
   @Inject
-  public TinyauthActionFilter(Settings s, ThreadPool threadPool) {
-    super(s);
+  public TinyauthActionFilter(Settings settings, ThreadPool threadPool) {
+    super(settings);
     this.threadPool = threadPool;
+
+    endpoint = settings.get("tinyauth.endpoint");
+    access_key_id = settings.get("tinyauth.access_key_id");
+    secret_access_key = settings.get("tinyauth.secret_access_key");
   }
 
   @Override
@@ -107,6 +115,12 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
                                                                                      Request request,
                                                                                      ActionListener<Response> listener,
                                                                                      ActionFilterChain<Request, Response> chain) {
+    if (endpoint == null || access_key_id == null || secret_access_key == null) {
+      logger.error("Authentication endpoint for tinyauth not configured");
+      listener.onFailure(new ConnectionError("Authentication not attempted"));
+      return;
+    }
+
     String body = "";
     ThreadContext threadContext = threadPool.getThreadContext();
 
@@ -138,8 +152,8 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
        logger.error("IO error while building auth request for " + action);
     }
 
-    Unirest.post("http://tinyauth:5000/api/v1/authorize")
-      .basicAuth("gatekeeper", "keymaster")
+    Unirest.post(endpoint + "v1/authorize")
+      .basicAuth(access_key_id, secret_access_key)
       .header("accept", "application/json")
       .header("content-type", "application/json")
       .body(body)
