@@ -17,10 +17,8 @@
 
 package io.tinyauth.elasticsearch;
 
-public class Constants {
-  public static final String PREFIX = "_tinyauth_";
-
-  public static final String ORIGIN = PREFIX + "origin";
-  public static final String HEADERS = PREFIX + "headers";
-  public static final String SOURCE_IP = PREFIX + "source_ip";
+public class Origin {
+  public static final String REST = "rest";
+  public static final String INTERNAL_REST = "rest";
+  public static final String LOCAL = "local";
 }

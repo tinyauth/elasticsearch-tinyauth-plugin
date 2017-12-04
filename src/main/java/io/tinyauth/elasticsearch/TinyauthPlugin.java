@@ -34,6 +34,7 @@ import java.net.InetSocketAddress;
 import java.net.InetAddress;
 
 import io.tinyauth.elasticsearch.Constants;
+import io.tinyauth.elasticsearch.Origin;
 
 
 public class TinyauthPlugin extends Plugin implements ActionPlugin {
@@ -79,6 +80,11 @@ public class TinyauthPlugin extends Plugin implements ActionPlugin {
       InetSocketAddress socketAddress = (InetSocketAddress) request.getRemoteAddress();
       InetAddress inetAddress = socketAddress.getAddress();
       threadContext.putTransient(Constants.SOURCE_IP, inetAddress.getHostAddress());
+
+      if (inetAddress.getHostAddress() == null)  
+        threadContext.putTransient(Constants.ORIGIN, Origin.INTERNAL_REST);
+      else
+        threadContext.putTransient(Constants.ORIGIN, Origin.REST);
 
       threadContext.putTransient(Constants.HEADERS, request.getHeaders());
 

@@ -80,6 +80,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import io.tinyauth.elasticsearch.exceptions.ConnectionError;
 import io.tinyauth.elasticsearch.Constants;
+import io.tinyauth.elasticsearch.Origin;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.*;
 import static io.tinyauth.elasticsearch.RequestToIndices.getIndices;
@@ -116,8 +117,21 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
                                                                                      Request request,
                                                                                      ActionListener<Response> listener,
                                                                                      ActionFilterChain<Request, Response> chain) {
+
+    ThreadContext threadContext = threadPool.getThreadContext();
+
+    if (threadContext.getTransient(Constants.ORIGIN) == null)
+      threadContext.putTransient(Constants.ORIGIN, Origin.LOCAL);
+
+    if ((String)threadContext.getTransient(Constants.ORIGIN) != Origin.REST) {
+      logger.debug("Tinyauth only enabled for requests coming from external REST channels");
+      chain.proceed(task, action, request, listener);
+      return;
+    }
+
     if (action.startsWith("internal")) {
       logger.debug("No authentication required for internal requests");
+      chain.proceed(task, action, request, listener);
       return;
     }
 
@@ -128,7 +142,6 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
     }
 
     String body = "";
-    ThreadContext threadContext = threadPool.getThreadContext();
 
     try {
         XContentBuilder builder = jsonBuilder()
@@ -137,13 +150,14 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
           .field("resource", "")
           .startArray("headers");
 
-        Map<String,List<String>> headers = threadContext.getTransient(Constants.HEADERS);
-        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-          for (String value : entry.getValue()) {
-            builder = builder.startArray().value(entry.getKey()).value(value).endArray();
+        if (threadContext.getTransient(Constants.HEADERS) != null) {
+          Map<String,List<String>> headers = threadContext.getTransient(Constants.HEADERS);
+          for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+            for (String value : entry.getValue()) {
+              builder = builder.startArray().value(entry.getKey()).value(value).endArray();
+            }
           }
         }
-
         builder = builder.endArray()
           .startObject("context")
           .field("SourceIp", (String) threadContext.getTransient(Constants.SOURCE_IP))
