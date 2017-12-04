@@ -22,6 +22,8 @@ import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.rest.RestHandler;
 import org.elasticsearch.action.support.ActionFilter;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
+import org.elasticsearch.common.settings.Setting;
+import org.elasticsearch.common.settings.Setting.Property;
 
 import java.util.function.UnaryOperator;
 import java.util.Arrays;
@@ -31,8 +33,41 @@ import java.util.Collections;
 import java.net.InetSocketAddress;
 import java.net.InetAddress;
 
+import io.tinyauth.elasticsearch.Constants;
+
 
 public class TinyauthPlugin extends Plugin implements ActionPlugin {
+
+    public static final Setting<String> ENDPOINT_SETTING = new Setting<>(
+      "tinyauth.endpoint",
+      "",
+      (value) -> value,
+      Property.NodeScope
+  );
+
+  public static final Setting<String> ACCESS_KEY_ID_SETTING = new Setting<>(
+      "tinyauth.access_key_id",
+      "",
+      (value) -> value,
+      Property.NodeScope
+  );
+
+  public static final Setting<String> SECRET_ACCESS_KEY_SETTING = new Setting<>(
+      "tinyauth.secret_access_key",
+      "",
+      (value) -> value,
+      Property.NodeScope
+  );
+
+  @Override
+  public List<Setting<?>> getSettings() {
+    return Arrays.asList(
+      ENDPOINT_SETTING,
+      ACCESS_KEY_ID_SETTING,
+      SECRET_ACCESS_KEY_SETTING
+    );
+  }
+
   @Override
   public List<Class<? extends ActionFilter>> getActionFilters() {
       return Collections.singletonList(TinyauthActionFilter.class);
@@ -43,9 +78,10 @@ public class TinyauthPlugin extends Plugin implements ActionPlugin {
     return restHandler -> (RestHandler) (request, channel, client) -> {
       InetSocketAddress socketAddress = (InetSocketAddress) request.getRemoteAddress();
       InetAddress inetAddress = socketAddress.getAddress();
-      threadContext.putTransient("_tinyauth_remote_ip", inetAddress.getHostAddress());
+      threadContext.putTransient(Constants.SOURCE_IP, inetAddress.getHostAddress());
 
-      threadContext.putTransient("_tinyauth_request", request.getHeaders());
+      threadContext.putTransient(Constants.HEADERS, request.getHeaders());
+
       restHandler.handleRequest(request, channel, client);
     };
   }

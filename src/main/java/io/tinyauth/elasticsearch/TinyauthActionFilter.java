@@ -79,6 +79,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
 import io.tinyauth.elasticsearch.exceptions.ConnectionError;
+import io.tinyauth.elasticsearch.Constants;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.*;
 import static io.tinyauth.elasticsearch.RequestToIndices.getIndices;
@@ -136,7 +137,7 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
           .field("resource", "")
           .startArray("headers");
 
-        Map<String,List<String>> headers = threadContext.getTransient("_tinyauth_request");
+        Map<String,List<String>> headers = threadContext.getTransient(Constants.HEADERS);
         for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
           for (String value : entry.getValue()) {
             builder = builder.startArray().value(entry.getKey()).value(value).endArray();
@@ -145,7 +146,7 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
 
         builder = builder.endArray()
           .startObject("context")
-          .field("SourceIp", (String) threadContext.getTransient("_tinyauth_remote_ip"))
+          .field("SourceIp", (String) threadContext.getTransient(Constants.SOURCE_IP))
           .endObject()
           .endObject();
 
