@@ -81,15 +81,17 @@ import java.lang.reflect.InvocationTargetException;
 import io.tinyauth.elasticsearch.exceptions.ConnectionError;
 import io.tinyauth.elasticsearch.Constants;
 import io.tinyauth.elasticsearch.Origin;
+import io.tinyauth.elasticsearch.actions.*;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.*;
-import static io.tinyauth.elasticsearch.RequestToIndices.getIndices;
 
 
 @Singleton
 public class TinyauthActionFilter extends AbstractComponent implements ActionFilter {
 
   private static final Logger logger = Loggers.getLogger(TinyauthActionFilter.class);
+  private static final ActionIndexesAdaptor indexExtractor = new ActionIndexesAdaptor();
+
   private final ThreadPool threadPool;
 
   private String endpoint;
@@ -142,6 +144,8 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
     }
 
     String body = "";
+
+    logger.error(String.join(" ", indexExtractor.getIndices(request)));
 
     try {
         XContentBuilder builder = jsonBuilder()
