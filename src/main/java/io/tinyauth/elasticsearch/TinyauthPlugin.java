@@ -39,30 +39,30 @@ import io.tinyauth.elasticsearch.Origin;
 
 public class TinyauthPlugin extends Plugin implements ActionPlugin {
 
-    public static final Setting<String> ENDPOINT_SETTING = new Setting<>(
+  public static final Setting<String> SERVICE_NAME_SETTING = Setting.simpleString(
+    "tinyauth.service_name",
+    Property.NodeScope
+  );
+
+  public static final Setting<String> ENDPOINT_SETTING = Setting.simpleString(
       "tinyauth.endpoint",
-      "",
-      (value) -> value,
       Property.NodeScope
   );
 
-  public static final Setting<String> ACCESS_KEY_ID_SETTING = new Setting<>(
+  public static final Setting<String> ACCESS_KEY_ID_SETTING = Setting.simpleString(
       "tinyauth.access_key_id",
-      "",
-      (value) -> value,
       Property.NodeScope
   );
 
-  public static final Setting<String> SECRET_ACCESS_KEY_SETTING = new Setting<>(
+  public static final Setting<String> SECRET_ACCESS_KEY_SETTING = Setting.simpleString(
       "tinyauth.secret_access_key",
-      "",
-      (value) -> value,
       Property.NodeScope
   );
 
   @Override
   public List<Setting<?>> getSettings() {
     return Arrays.asList(
+      SERVICE_NAME_SETTING,
       ENDPOINT_SETTING,
       ACCESS_KEY_ID_SETTING,
       SECRET_ACCESS_KEY_SETTING

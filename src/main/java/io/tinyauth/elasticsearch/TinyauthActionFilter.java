@@ -82,6 +82,7 @@ import io.tinyauth.elasticsearch.exceptions.ConnectionError;
 import io.tinyauth.elasticsearch.Constants;
 import io.tinyauth.elasticsearch.Origin;
 import io.tinyauth.elasticsearch.ActionIndicesAdaptor;
+import io.tinyauth.elasticsearch.ActionNameAdaptor;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.*;
 
@@ -94,18 +95,20 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
 
   private final ThreadPool threadPool;
 
+  private String serviceName;
   private String endpoint;
-  private String access_key_id;
-  private String secret_access_key;
+  private String accessKeyId;
+  private String secretAccessKey;
 
   @Inject
   public TinyauthActionFilter(Settings settings, ThreadPool threadPool) {
     super(settings);
     this.threadPool = threadPool;
 
+    serviceName = settings.get("tinyauth.service_name", "es");
     endpoint = settings.get("tinyauth.endpoint");
-    access_key_id = settings.get("tinyauth.access_key_id");
-    secret_access_key = settings.get("tinyauth.secret_access_key");
+    accessKeyId = settings.get("tinyauth.access_key_id");
+    secretAccessKey = settings.get("tinyauth.secret_access_key");
   }
 
   @Override
@@ -137,7 +140,7 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
       return;
     }
 
-    if (endpoint == null || access_key_id == null || secret_access_key == null) {
+    if (endpoint == null || accessKeyId == null || secretAccessKey == null) {
       logger.error("Authentication endpoint for tinyauth not configured");
       listener.onFailure(new ConnectionError("Authentication not attempted"));
       return;
@@ -150,7 +153,7 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
     try {
         XContentBuilder builder = jsonBuilder()
           .startObject()
-          .field("action", action)
+          .field("action", serviceName + ":" + ActionNameAdaptor.nameForRequest(action))
           .field("resource", "")
           .startArray("headers");
 
@@ -177,7 +180,7 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
     }
 
     Unirest.post(endpoint + "v1/authorize")
-      .basicAuth(access_key_id, secret_access_key)
+      .basicAuth(accessKeyId, secretAccessKey)
       .header("accept", "application/json")
       .header("content-type", "application/json")
       .body(body)
