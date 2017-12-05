@@ -1,10 +1,10 @@
 /*
  * Copyright 2017 tinyauth.io
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -12,10 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 
-package io.tinyauth.elasticsearch.actions;
+package io.tinyauth.elasticsearch;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,11 +47,11 @@ import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.common.logging.Loggers;
 
 
-public class ActionIndexesAdaptor {
-  private static final Logger logger = Loggers.getLogger(ActionIndexesAdaptor.class);
+public class ActionIndicesAdaptor {
+  private static final Logger logger = Loggers.getLogger(ActionIndicesAdaptor.class);
   private ArrayList<Method> methods;
 
-  public ActionIndexesAdaptor() {
+  public ActionIndicesAdaptor() {
     methods = new ArrayList<Method>();
 
     for (Method m: this.getClass().getMethods()) {
@@ -70,7 +70,7 @@ public class ActionIndexesAdaptor {
   public Set<String> extractIndices(SearchRequest req) {
     logger.error("SearchRequest");
     Set<String> idxs = new HashSet<String>();
-    Collections.addAll(idxs, req.indices()); 
+    Collections.addAll(idxs, req.indices());
     return idxs;
   }
 
@@ -78,7 +78,7 @@ public class ActionIndexesAdaptor {
     logger.error("ActionRequest");
     return new HashSet<String>();
   }
-  
+
   public Set<String> getIndices(ActionRequest req) {
     for (Method m: methods) {
       Class<?>[] c = m.getParameterTypes();
@@ -102,7 +102,7 @@ public class ActionIndexesAdaptor {
         }
       }
     }
-    
+
     logger.error("Unable to find adaptor for request");
     return new HashSet<String>();
   }

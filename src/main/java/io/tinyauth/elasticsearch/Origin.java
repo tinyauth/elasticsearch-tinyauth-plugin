@@ -19,6 +19,6 @@ package io.tinyauth.elasticsearch;
 
 public class Origin {
   public static final String REST = "rest";
-  public static final String INTERNAL_REST = "rest";
+  public static final String INTERNAL_REST = "internal_rest";
   public static final String LOCAL = "local";
 }
