@@ -91,11 +91,13 @@ import static org.elasticsearch.common.xcontent.XContentFactory.*;
 public class TinyauthActionFilter extends AbstractComponent implements ActionFilter {
 
   private static final Logger logger = Loggers.getLogger(TinyauthActionFilter.class);
-  private static final ActionIndicesAdaptor indexExtractor = new ActionIndicesAdaptor();
+  private final ActionIndicesAdaptor indexExtractor;
 
   private final ThreadPool threadPool;
 
+  private String partition;
   private String serviceName;
+  private String region;
   private String endpoint;
   private String accessKeyId;
   private String secretAccessKey;
@@ -105,10 +107,14 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
     super(settings);
     this.threadPool = threadPool;
 
+    partition = settings.get("tinyauth.partition", "tinyauth");
     serviceName = settings.get("tinyauth.service_name", "es");
+    region = settings.get("tinyauth.region", "default");
     endpoint = settings.get("tinyauth.endpoint");
     accessKeyId = settings.get("tinyauth.access_key_id");
     secretAccessKey = settings.get("tinyauth.secret_access_key");
+
+    indexExtractor = new ActionIndicesAdaptor(partition, serviceName, region);
   }
 
   @Override
@@ -179,7 +185,7 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
        logger.error("IO error while building auth request for " + action);
     }
 
-    Unirest.post(endpoint + "v1/authorize")
+    Unirest.post(endpoint + "v1/batch-authorize-by-token")
       .basicAuth(accessKeyId, secretAccessKey)
       .header("accept", "application/json")
       .header("content-type", "application/json")

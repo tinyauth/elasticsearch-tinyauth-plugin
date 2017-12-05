@@ -39,8 +39,18 @@ import io.tinyauth.elasticsearch.Origin;
 
 public class TinyauthPlugin extends Plugin implements ActionPlugin {
 
+  public static final Setting<String> PARTITION_SETTING = Setting.simpleString(
+    "tinyauth.partition",
+    Property.NodeScope
+  );
+
   public static final Setting<String> SERVICE_NAME_SETTING = Setting.simpleString(
     "tinyauth.service_name",
+    Property.NodeScope
+  );
+
+  public static final Setting<String> REGION_SETTING = Setting.simpleString(
+    "tinyauth.region",
     Property.NodeScope
   );
 
@@ -62,7 +72,9 @@ public class TinyauthPlugin extends Plugin implements ActionPlugin {
   @Override
   public List<Setting<?>> getSettings() {
     return Arrays.asList(
+      PARTITION_SETTING,
       SERVICE_NAME_SETTING,
+      REGION_SETTING,
       ENDPOINT_SETTING,
       ACCESS_KEY_ID_SETTING,
       SECRET_ACCESS_KEY_SETTING

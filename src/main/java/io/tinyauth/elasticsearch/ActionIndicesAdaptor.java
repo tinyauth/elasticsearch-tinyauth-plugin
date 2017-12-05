@@ -17,7 +17,6 @@
 
 package io.tinyauth.elasticsearch;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
@@ -26,6 +25,9 @@ import java.util.Comparator;
 import java.util.ArrayList;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.logging.log4j.Logger;
 
@@ -49,33 +51,91 @@ import org.elasticsearch.common.logging.Loggers;
 
 public class ActionIndicesAdaptor {
   private static final Logger logger = Loggers.getLogger(ActionIndicesAdaptor.class);
-  private ArrayList<Method> methods;
 
-  public ActionIndicesAdaptor() {
-    methods = new ArrayList<Method>();
+  private String partition;
+  private String service;
+  private String region;
 
-    for (Method m: this.getClass().getMethods()) {
-      if (m.getName() != "extractIndices")
-        continue;
+  private List<Method> methods;
 
-      if (!m.getGenericReturnType().toString().equals("java.util.Set<java.lang.String>"))
-        continue;
+  public ActionIndicesAdaptor(String partition, String service, String region) {
+    this.partition = partition;
+    this.service = service;
+    this.region = region;
 
-      logger.error(m);
-      methods.add(m);
-    }
-    // Collections.sort(methods, methodComparator);
+    this.methods = Stream.of(this.getClass().getMethods())
+      .filter(m -> m.getName() == "extractIndices")
+      .filter(m -> m.getParameterTypes().length == 1)
+      .filter(m -> ActionRequest.class.isAssignableFrom(m.getParameterTypes()[0]))
+      .filter(m -> m.getGenericReturnType().toString().equals("java.util.Set<java.lang.String>"))
+      .sorted((left, right) -> {
+        Class<?> leftType = left.getParameterTypes()[0];
+        Class<?> rightType = right.getParameterTypes()[0];
+
+        if (leftType.isAssignableFrom(rightType))
+          return 1;
+
+        if (rightType.isAssignableFrom(leftType))
+          return -1;
+
+        return leftType.getName().compareTo(rightType.getName());
+      })
+      .collect(Collectors.toList());
+
+    logger.error(this.methods);
+  }
+  
+  private String formatArn(String resourceType, String resource) {
+    return String.join(":", 
+      "arn",
+      partition,
+      service,
+      region,
+      "",
+      resourceType + "/" + resource
+    );
+  }
+
+  public Set<String> extractIndices(MultiGetRequest req) {
+    return Stream.of(req.getItems())
+      .flatMap(ir -> Stream.of(ir.indices()))
+      .map(idx -> formatArn("index", idx))
+      .collect(Collectors.toSet());
+  }
+
+  public Set<String> extractIndices(MultiSearchRequest req) {
+    return Stream.of(req.requests())
+      .flatMap(ir -> Stream.of(ir.indices()))
+      .map(idx -> formatArn("index", idx))
+      .collect(Collectors.toSet());
+  }
+
+  /*public Set<String> extractIndices(MultiTermVectorsRequest req) {
+    return Stream.of(req.getItems())
+      .flatMap(ir -> Stream.of(ir.indices()))
+      .map(idx -> formatArn("index", idx))
+      .collect(Collectors.toSet());
+  }*/
+
+  /*public Set<String> extractIndices(BulkRequest req) {
+    return Stream.of(req.requests())
+      .flatMap(ir -> Stream.of(getIndices(ir)))
+      .collect(Collectors.toSet());
+  }*/
+
+  public Set<String> extractIndices(DeleteRequest req) {
+    return Stream.of(req.indices()).map(idx -> formatArn("index", idx)).collect(Collectors.toSet());
+  }
+
+  public Set<String> extractIndices(IndexRequest req) {
+    return Stream.of(req.indices()).map(idx -> formatArn("index", idx)).collect(Collectors.toSet());
   }
 
   public Set<String> extractIndices(SearchRequest req) {
-    logger.error("SearchRequest");
-    Set<String> idxs = new HashSet<String>();
-    Collections.addAll(idxs, req.indices());
-    return idxs;
+    return Stream.of(req.indices()).map(idx -> formatArn("index", idx)).collect(Collectors.toSet());
   }
 
   public Set<String> extractIndices(ActionRequest req) {
-    logger.error("ActionRequest");
     return new HashSet<String>();
   }
 
@@ -98,12 +158,12 @@ public class ActionIndicesAdaptor {
         } catch (NullPointerException e) {
           logger.error("NullPointerException");
         } catch (ExceptionInInitializerError e) {
-          logger.error("NullPointerException");
+          logger.error("ExceptionInInitializerError");
         }
       }
     }
 
-    logger.error("Unable to find adaptor for request");
+    logger.error("Unable to find adaptor for request. This is a bug!");
     return new HashSet<String>();
   }
 }
