@@ -40,6 +40,7 @@ import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkShardRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.MultiGetRequest;
+import org.elasticsearch.action.termvectors.MultiTermVectorsRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.MultiSearchRequest;
 import org.elasticsearch.action.search.SearchRequest;
@@ -97,31 +98,31 @@ public class ActionIndicesAdaptor {
   }
 
   public Set<String> extractIndices(MultiGetRequest req) {
-    return Stream.of(req.getItems())
+    return req.getItems().stream()
       .flatMap(ir -> Stream.of(ir.indices()))
       .map(idx -> formatArn("index", idx))
       .collect(Collectors.toSet());
   }
 
   public Set<String> extractIndices(MultiSearchRequest req) {
-    return Stream.of(req.requests())
+    return req.requests().stream()
       .flatMap(ir -> Stream.of(ir.indices()))
       .map(idx -> formatArn("index", idx))
       .collect(Collectors.toSet());
   }
 
-  /*public Set<String> extractIndices(MultiTermVectorsRequest req) {
-    return Stream.of(req.getItems())
+  public Set<String> extractIndices(MultiTermVectorsRequest req) {
+    return req.getRequests().stream()
       .flatMap(ir -> Stream.of(ir.indices()))
       .map(idx -> formatArn("index", idx))
       .collect(Collectors.toSet());
-  }*/
+  }
 
-  /*public Set<String> extractIndices(BulkRequest req) {
-    return Stream.of(req.requests())
-      .flatMap(ir -> Stream.of(getIndices(ir)))
+  public Set<String> extractIndices(BulkRequest req) {
+    return req.requests().stream()
+      .flatMap(ir -> getIndices((ActionRequest) ir).stream())
       .collect(Collectors.toSet());
-  }*/
+  }
 
   public Set<String> extractIndices(DeleteRequest req) {
     return Stream.of(req.indices()).map(idx -> formatArn("index", idx)).collect(Collectors.toSet());
