@@ -17,7 +17,7 @@ ENV PATH $PATH:$GRADLE_HOME/bin
 
 COPY build.gradle /src/build.gradle
 WORKDIR /src
-RUN gradle buildEnvironment
+RUN gradle downloadDependencies
 
 COPY . .
 RUN gradle assemble
