@@ -69,6 +69,12 @@ public class TinyauthPlugin extends Plugin implements ActionPlugin {
       Property.NodeScope
   );
 
+  public static final Setting<Boolean> SSL_VERIFY_SETTING = Setting.boolSetting(
+      "tinyauth.ssl_verify",
+      false,
+      Property.NodeScope
+  );
+
   @Override
   public List<Setting<?>> getSettings() {
     return Arrays.asList(
@@ -77,7 +83,8 @@ public class TinyauthPlugin extends Plugin implements ActionPlugin {
       REGION_SETTING,
       ENDPOINT_SETTING,
       ACCESS_KEY_ID_SETTING,
-      SECRET_ACCESS_KEY_SETTING
+      SECRET_ACCESS_KEY_SETTING,
+      SSL_VERIFY_SETTING
     );
   }
 

@@ -21,6 +21,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
+import javax.net.ssl.SSLContext;
+
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
+import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.logging.log4j.Logger;
 
 import org.elasticsearch.ElasticsearchException;
@@ -83,6 +90,22 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
     endpoint = settings.get("tinyauth.endpoint");
     accessKeyId = settings.get("tinyauth.access_key_id");
     secretAccessKey = settings.get("tinyauth.secret_access_key");
+
+    if (settings.getAsBoolean("tinyauth.ssl_verify", false)) {
+      logger.error("SSL verification has been disabled (by admin request). Calls to tinyauth service are not protected from MITM attacks.");
+
+      try {
+        SSLContext context = SSLContexts.custom().loadTrustMaterial(null, new TrustAllStrategy()).build();
+
+        Unirest.setHttpClient(HttpClients.custom()
+          .setSSLContext(context)
+          .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+          .build());
+
+      } catch (Exception e) {
+        logger.error("Encountered an error whilst disabling SSL verification: " + e);
+      }
+    }
 
     indexExtractor = new ActionIndicesAdaptor(partition, serviceName, region);
   }
@@ -154,7 +177,7 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
 
         logger.error(body);
 
-    Unirest.post(endpoint + "v1/{service}/authorize-by-token")
+    Unirest.post(endpoint + "v1/services/{service}/authorize-by-token")
       .routeParam("service", serviceName)
       .basicAuth(accessKeyId, secretAccessKey)
       .header("accept", "application/json")
