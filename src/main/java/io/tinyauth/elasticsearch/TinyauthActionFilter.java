@@ -20,11 +20,15 @@ package io.tinyauth.elasticsearch;
 import java.util.Arrays;
 import java.util.List;
 import java.io.IOException;
+import java.util.Set;
+import java.util.Map;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 import org.apache.logging.log4j.Logger;
 
 import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.ResourceNotFoundException;
+import org.elasticsearch.ElasticsearchSecurityException;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ActionResponse;
@@ -37,32 +41,12 @@ import org.elasticsearch.common.component.AbstractComponent;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.Singleton;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.ToXContent;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.json.JsonXContent;
+import org.elasticsearch.common.logging.Loggers;
+import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.env.Environment;
-import org.elasticsearch.rest.BytesRestResponse;
-import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.tasks.Task;
 import org.elasticsearch.threadpool.ThreadPool;
-import org.elasticsearch.transport.TransportService;
-import org.elasticsearch.transport.TransportRequest;
-import org.elasticsearch.common.logging.Loggers;
-import org.elasticsearch.action.ActionRequest;
-import org.elasticsearch.action.CompositeIndicesRequest;
-import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.IndicesRequest;
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkShardRequest;
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.get.MultiGetRequest;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.MultiSearchRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.ElasticsearchSecurityException;
-import org.elasticsearch.common.util.concurrent.ThreadContext;
 
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.HttpResponse;
@@ -72,11 +56,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 import org.json.JSONObject;
 import org.json.JSONException;
-
-import java.util.Set;
-import java.util.Map;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
+import org.json.JSONStringer;
 
 import io.tinyauth.elasticsearch.exceptions.ConnectionError;
 import io.tinyauth.elasticsearch.Constants;
@@ -154,36 +134,35 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
 
     String body = "";
 
-    logger.error(String.join(" ", indexExtractor.getIndices(request)));
+    logger.error(indexExtractor.collectPermissions(request));
+    
 
-    try {
-        XContentBuilder builder = jsonBuilder()
-          .startObject()
-          .field("action", serviceName + ":" + ActionNameAdaptor.nameForRequest(action))
-          .field("resource", "")
-          .startArray("headers");
+      JSONStringer builder = new JSONStringer();
+      builder.object();
+      indexExtractor.collectPermissions(request, builder);
 
-        if (threadContext.getTransient(Constants.HEADERS) != null) {
-          Map<String,List<String>> headers = threadContext.getTransient(Constants.HEADERS);
-          for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-            for (String value : entry.getValue()) {
-              builder = builder.startArray().value(entry.getKey()).value(value).endArray();
-            }
-          }
-        }
-        builder = builder.endArray()
-          .startObject("context")
-          .field("SourceIp", (String) threadContext.getTransient(Constants.SOURCE_IP))
-          .endObject()
-          .endObject();
+      builder.key("headers").array();
 
-        body = builder.string();
+      if (threadContext.getTransient(Constants.HEADERS) != null) {
+        Map<String,List<String>> headers = threadContext.getTransient(Constants.HEADERS);
+        headers.entrySet().stream().forEach(headerPair -> {
+          headerPair.getValue().stream().forEach(value -> {
+            builder.array().value(headerPair.getKey()).value(value).endArray();
+          });
+        });
+      }
+
+      builder.endArray()
+        .key("context")
+        .object()
+        .key("SourceIp")
+        .value((String) threadContext.getTransient(Constants.SOURCE_IP))
+        .endObject()
+        .endObject();
+
+        body = builder.toString();
 
         logger.error(body);
-    } catch (IOException e) {
-       listener.onFailure(new ConnectionError("Unexpected exception"));
-       logger.error("IO error while building auth request for " + action);
-    }
 
     Unirest.post(endpoint + "v1/batch-authorize-by-token")
       .basicAuth(accessKeyId, secretAccessKey)

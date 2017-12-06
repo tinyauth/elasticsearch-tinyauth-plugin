@@ -41,6 +41,7 @@ dependencies {
   compile 'org.apache.httpcomponents:httpasyncclient:4.0.2'
   compile 'org.apache.httpcomponents:httpmime:4.3.6'  
   compile 'commons-logging:commons-logging:1.1.1'
+  compile 'com.github.guavaberry:guavaberry:1.0.0'
 
   testCompile 'org.elasticsearch.test:framework:5.5.2'
 }
