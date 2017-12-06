@@ -17,13 +17,9 @@
 
 package io.tinyauth.elasticsearch;
 
-import java.util.Arrays;
 import java.util.List;
-import java.io.IOException;
 import java.util.Set;
 import java.util.Map;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
 
 import org.apache.logging.log4j.Logger;
 
@@ -34,16 +30,12 @@ import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.action.support.ActionFilter;
 import org.elasticsearch.action.support.ActionFilterChain;
-import org.elasticsearch.client.node.NodeClient;
-import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
-import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.component.AbstractComponent;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.Singleton;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
-import org.elasticsearch.env.Environment;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.tasks.Task;
 import org.elasticsearch.threadpool.ThreadPool;
@@ -63,8 +55,6 @@ import io.tinyauth.elasticsearch.Constants;
 import io.tinyauth.elasticsearch.Origin;
 import io.tinyauth.elasticsearch.ActionIndicesAdaptor;
 import io.tinyauth.elasticsearch.ActionNameAdaptor;
-
-import static org.elasticsearch.common.xcontent.XContentFactory.*;
 
 
 @Singleton
