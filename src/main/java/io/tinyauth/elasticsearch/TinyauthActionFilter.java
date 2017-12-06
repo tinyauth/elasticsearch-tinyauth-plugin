@@ -164,7 +164,8 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
 
         logger.error(body);
 
-    Unirest.post(endpoint + "v1/batch-authorize-by-token")
+    Unirest.post(endpoint + "v1/{service}/authorize-by-token")
+      .routeParam("service", serviceName)
       .basicAuth(accessKeyId, secretAccessKey)
       .header("accept", "application/json")
       .header("content-type", "application/json")
