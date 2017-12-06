@@ -17,16 +17,10 @@
 
 package io.tinyauth.elasticsearch;
 
-import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.ArrayList;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -56,6 +50,11 @@ import org.json.JSONStringer;
 import org.guavaberry.collections.DefaultHashMap;
 
 
+interface PermissionExtractor {
+  void extract(Map<String, Set<String>> permissions, ActionRequest request);
+}
+
+
 public class ActionIndicesAdaptor {
   private static final Logger logger = Loggers.getLogger(ActionIndicesAdaptor.class);
 
@@ -63,33 +62,65 @@ public class ActionIndicesAdaptor {
   private String service;
   private String region;
 
-  private List<Method> methods;
+  private HashMap<Class<?>, PermissionExtractor> methods;
 
   public ActionIndicesAdaptor(String partition, String service, String region) {
     this.partition = partition;
     this.service = service;
     this.region = region;
 
-    this.methods = Stream.of(this.getClass().getMethods())
-      .filter(m -> m.getName() == "extractIndices")
-      .filter(m -> m.getParameterTypes().length == 2)
-      .filter(m -> ActionRequest.class.isAssignableFrom(m.getParameterTypes()[1]))
-      // .filter(m -> m.getGenericReturnType().toString().equals("java.util.Set<java.lang.String>"))
-      .sorted((left, right) -> {
-        Class<?> leftType = left.getParameterTypes()[0];
-        Class<?> rightType = right.getParameterTypes()[0];
+    this.methods = new HashMap<>();
+    
+    this.methods.put(MultiGetRequest.class, (permissions, request) -> {
+      MultiGetRequest req = (MultiGetRequest)request;
+      Set<String> permission = permissions.get("IndicesDataReadMget");
+      req.getItems().stream()
+        .flatMap(ir -> Stream.of(ir.indices()))
+        .map(idx -> formatArn("index", idx))
+        .forEach(permission::add);
+    });
 
-        if (leftType.isAssignableFrom(rightType))
-          return 1;
+    this.methods.put(MultiSearchRequest.class, (permissions, request) -> {
+      MultiSearchRequest req = (MultiSearchRequest)request;
+      Set<String> permission = permissions.get("IndicesDataReadMsearch");
+      req.requests().stream()
+        .flatMap(ir -> Stream.of(ir.indices()))
+        .map(idx -> formatArn("index", idx))
+        .forEach(permission::add);
+    });
 
-        if (rightType.isAssignableFrom(leftType))
-          return -1;
+    this.methods.put(MultiTermVectorsRequest.class, (permissions, request) -> {
+      MultiTermVectorsRequest req = (MultiTermVectorsRequest)request;
+      Set<String> permission = permissions.get("IndicesDataReadMtv");
+      req.getRequests().stream()
+        .flatMap(ir -> Stream.of(ir.indices()))
+        .map(idx -> formatArn("index", idx))
+        .forEach(permission::add);
+    });
 
-        return leftType.getName().compareTo(rightType.getName());
-      })
-      .collect(Collectors.toList());
+    this.methods.put(BulkRequest.class, (permissions, request) -> {
+      BulkRequest req = (BulkRequest)request;
+      req.requests().stream()
+        .forEach(ir -> getIndices(permissions, (ActionRequest) ir));
+    });
 
-    logger.error(this.methods);
+    this.methods.put(DeleteRequest.class, (permissions, request) -> {
+      DeleteRequest req = (DeleteRequest)request;
+      Set<String> permission = permissions.get("IndicesDataWriteDelete");
+      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+    });
+
+    this.methods.put(IndexRequest.class, (permissions, request) -> {
+      IndexRequest req = (IndexRequest)request;
+      Set<String> permission = permissions.get("IndicesDataWriteIndex");
+      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+    });
+
+    this.methods.put(SearchRequest.class, (permissions, request) -> {
+      SearchRequest req = (SearchRequest)request;
+      Set<String> permission = permissions.get("IndicesDataReadSearch");
+      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+    });
   }
   
   private String formatArn(String resourceType, String resource) {
@@ -103,79 +134,13 @@ public class ActionIndicesAdaptor {
     );
   }
 
-  public void extractIndices(Map<String, Set<String>>permissions, MultiGetRequest req) {
-    Set<String> permission = permissions.get("IndicesDataReadMget");
-    req.getItems().stream()
-      .flatMap(ir -> Stream.of(ir.indices()))
-      .map(idx -> formatArn("index", idx))
-      .forEach(permission::add);
-  }
-
-  public void extractIndices(Map<String, Set<String>>permissions, MultiSearchRequest req) {
-    Set<String> permission = permissions.get("IndicesDataReadMsearch");
-    req.requests().stream()
-      .flatMap(ir -> Stream.of(ir.indices()))
-      .map(idx -> formatArn("index", idx))
-      .forEach(permission::add);
-  }
-
-  public void extractIndices(Map<String, Set<String>>permissions, MultiTermVectorsRequest req) {
-    Set<String> permission = permissions.get("IndicesDataReadMtv");
-    req.getRequests().stream()
-      .flatMap(ir -> Stream.of(ir.indices()))
-      .map(idx -> formatArn("index", idx))
-      .forEach(permission::add);
-  }
-
-  public void extractIndices(Map<String, Set<String>>permissions, BulkRequest req) {
-    req.requests().stream()
-      .forEach(ir -> getIndices(permissions, (ActionRequest) ir));
-  }
-
-  public void extractIndices(Map<String, Set<String>>permissions, DeleteRequest req) {
-    Set<String> permission = permissions.get("IndicesDataWriteDelete");
-    Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
-  }
-
-  public void extractIndices(Map<String, Set<String>>permissions, IndexRequest req) {
-    Set<String> permission = permissions.get("IndicesDataWriteIndex");
-    Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
-  }
-
-  public void extractIndices(Map<String, Set<String>>permissions, SearchRequest req) {
-    Set<String> permission = permissions.get("IndicesDataReadSearch");
-    Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
-  }
-
-  public void extractIndices(Map<String, Set<String>>permissions, ActionRequest req) {
-    permissions.get("UnhandledPermission").add(formatArn("unknown", ""));
-  }
-
   private void getIndices(Map<String, Set<String>>permissions, ActionRequest req) {
-    for (Method m: methods) {
-      Class<?>[] c = m.getParameterTypes();
-      if (c[1].isInstance(req)) {
-        logger.error("Found adaptor for type " + c[1]);
-
-        try {
-          m.invoke(this, permissions, req);
-        } catch (IllegalAccessException e) {
-          logger.error("IllegalAccessException");
-        } catch (IllegalArgumentException e) {
-          logger.error("IllegalArgumentException");
-        } catch (InvocationTargetException e) {
-          logger.error("InvocationTargetException");
-        } catch (NullPointerException e) {
-          logger.error("NullPointerException");
-        } catch (ExceptionInInitializerError e) {
-          logger.error("ExceptionInInitializerError");
-        }
-        
-        return;
-      }
+    PermissionExtractor extractor = methods.get(req.getClass());
+    if (extractor == null) {
+      logger.error("Unable to find adaptor for request. This is a bug!");
+      return;
     }
-
-    logger.error("Unable to find adaptor for request. This is a bug!");
+    extractor.extract(permissions, req);
   }
 
   public Map<String, Set<String>> collectPermissions(ActionRequest req) {
