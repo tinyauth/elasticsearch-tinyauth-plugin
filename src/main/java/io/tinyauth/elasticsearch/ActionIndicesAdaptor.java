@@ -150,7 +150,7 @@ public class ActionIndicesAdaptor {
   }
   
   public void collectPermissions(ActionRequest req, JSONStringer stringer) {
-    stringer.key("grant");
+    stringer.key("permit");
     stringer.object();
 
     for (Map.Entry<String, Set<String>> entry : collectPermissions(req).entrySet()) {
