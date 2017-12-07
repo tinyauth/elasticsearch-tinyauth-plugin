@@ -1,0 +1,29 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+  compile 'org.elasticsearch:elasticsearch:5.5.2'
+  compile 'org.reflections:reflections:0.9.11'
+  compile "org.jtwig:jtwig-core:5.86.1.RELEASE"
+  testCompile 'junit:junit:4.12'
+}
+
+mainClassName = 'io.tinyauth.elasticsearch.reflection.App'
+
+task downloadDependencies {
+  description "Pre-downloads *most* dependencies"
+  doLast {
+    configurations.getAsMap().each { name, config ->
+      println "Retrieving dependencies for $name"
+      try {
+        config.files
+      } catch (e) {
+        project.logger.info e.message // some cannot be resolved, silentlyish skip them
+      }
+    }
+  }
+}
