@@ -38,6 +38,7 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.termvectors.MultiTermVectorsRequest;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.main.MainRequest;
 import org.elasticsearch.action.search.MultiSearchRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequest;
@@ -63,6 +64,27 @@ public class ActionIndicesAdaptor {
   private String region;
 
   private HashMap<Class<?>, PermissionExtractor> methods;
+
+  private String formatArn() {
+    return String.join(":",
+      "arn",
+      partition,
+      service,
+      region,
+      ""
+    );
+  }
+
+  private String formatArn(String resourceType, String resource) {
+    return String.join(":",
+      formatArn(),
+      resourceType + "/" + resource
+    );
+  }
+
+  private String formatArn(String resourceType) {
+    return formatArn(resourceType, "");
+  }
 
   public ActionIndicesAdaptor(String partition, String service, String region) {
     this.partition = partition;
@@ -121,23 +143,16 @@ public class ActionIndicesAdaptor {
       Set<String> permission = permissions.get("IndicesDataReadSearch");
       Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
     });
-  }
-  
-  private String formatArn(String resourceType, String resource) {
-    return String.join(":", 
-      "arn",
-      partition,
-      service,
-      region,
-      "",
-      resourceType + "/" + resource
-    );
+
+    this.methods.put(MainRequest.class, (permissions, request) -> {
+      permissions.get("ClusterMonitorMain").add(formatArn());
+    });
   }
 
   private void getIndices(Map<String, Set<String>>permissions, ActionRequest req) {
     PermissionExtractor extractor = methods.get(req.getClass());
     if (extractor == null) {
-      logger.error("Unable to find adaptor for request. This is a bug!");
+      logger.error("Unable to find adaptor for request " + req.getClass() + ". This is a bug!");
       return;
     }
     extractor.extract(permissions, req);
