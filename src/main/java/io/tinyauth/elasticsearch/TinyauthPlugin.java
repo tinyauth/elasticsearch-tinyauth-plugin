@@ -23,10 +23,8 @@ import org.elasticsearch.rest.RestHandler;
 import org.elasticsearch.action.support.ActionFilter;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.common.settings.Setting;
-import org.elasticsearch.common.settings.Setting.Property;
 
 import java.util.function.UnaryOperator;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
 
@@ -35,57 +33,14 @@ import java.net.InetAddress;
 
 import io.tinyauth.elasticsearch.Constants;
 import io.tinyauth.elasticsearch.Origin;
+import io.tinyauth.elasticsearch.Settings;
 
 
 public class TinyauthPlugin extends Plugin implements ActionPlugin {
 
-  public static final Setting<String> PARTITION_SETTING = Setting.simpleString(
-    "tinyauth.partition",
-    Property.NodeScope
-  );
-
-  public static final Setting<String> SERVICE_NAME_SETTING = Setting.simpleString(
-    "tinyauth.service_name",
-    Property.NodeScope
-  );
-
-  public static final Setting<String> REGION_SETTING = Setting.simpleString(
-    "tinyauth.region",
-    Property.NodeScope
-  );
-
-  public static final Setting<String> ENDPOINT_SETTING = Setting.simpleString(
-      "tinyauth.endpoint",
-      Property.NodeScope
-  );
-
-  public static final Setting<String> ACCESS_KEY_ID_SETTING = Setting.simpleString(
-      "tinyauth.access_key_id",
-      Property.NodeScope
-  );
-
-  public static final Setting<String> SECRET_ACCESS_KEY_SETTING = Setting.simpleString(
-      "tinyauth.secret_access_key",
-      Property.NodeScope
-  );
-
-  public static final Setting<Boolean> SSL_VERIFY_SETTING = Setting.boolSetting(
-      "tinyauth.ssl_verify",
-      false,
-      Property.NodeScope
-  );
-
   @Override
   public List<Setting<?>> getSettings() {
-    return Arrays.asList(
-      PARTITION_SETTING,
-      SERVICE_NAME_SETTING,
-      REGION_SETTING,
-      ENDPOINT_SETTING,
-      ACCESS_KEY_ID_SETTING,
-      SECRET_ACCESS_KEY_SETTING,
-      SSL_VERIFY_SETTING
-    );
+    return Settings.getSettings();
   }
 
   @Override
