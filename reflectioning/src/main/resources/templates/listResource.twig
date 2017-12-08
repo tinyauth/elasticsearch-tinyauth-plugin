@@ -1,0 +1,2 @@
+  /* this {{ resourceType }} related request has an {{ functionName }}() method */
+  Stream.of(req.{{ functionName }}()).map(idx -> formatArn("{{ resourceType }}", idx)).forEach(permission::add);

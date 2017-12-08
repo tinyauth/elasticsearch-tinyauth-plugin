@@ -1,6 +1,2 @@
-
-this.methods.put({{ requestClassName }}.class, (permissions, request) -> {
-  {{ requestClassName }} req = ({{ requestClassName }})request;
-  Set<String> permission = permissions.get("{{ permissionName }}");
+  /* this request has an indices() method */
   Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
-});

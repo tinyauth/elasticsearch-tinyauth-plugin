@@ -1,0 +1,2 @@
+  /*  this request has an getNodes() method */
+  Stream.of(req.getNodes()).map(nodeId -> formatArn("node", nodeId)).forEach(permission::add);

@@ -1,5 +1,6 @@
 package io.tinyauth.elasticsearch.reflection;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Comparator;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.Field;
+import java.lang.reflect.Constructor;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
 import java.lang.reflect.ParameterizedType;
@@ -23,7 +25,7 @@ import org.jtwig.JtwigTemplate;
 
 public class App {
   private static Comparator<Class<?>> classComparator = Comparator.comparing(c -> c.getCanonicalName());
-  
+
   private static boolean hasMethod(Class<?> klass, String key, String returnType) {
     try {
       Method m = klass.getMethod(key);
@@ -44,99 +46,171 @@ public class App {
     }
   }
 
-  private static Class<?> getActionForRequest(String canonicalName) {
-    if (canonicalName.endsWith("Request"))
-        canonicalName = canonicalName.substring(0, canonicalName.length() - 7);
-
-    if (canonicalName.endsWith("$"))
-        canonicalName = canonicalName.substring(0, canonicalName.length() - 1);
-
-    System.out.println(canonicalName);
-
-    try {
-      return Class.forName(canonicalName);
-    } catch (ClassNotFoundException e) {
-      return null;
+  private static class Skip extends Exception {
+    public Skip(Class<?> actionType, String reason) {
+      super("Skipped " + actionType + " as " + reason);
     }
   }
 
-  public static void main(String[] args) {  
+  private static String getPermissionForAction(Class<? extends Action> actionType) throws Skip {
+    String permissionName;
+    try {
+      Field permissionField = actionType.getField("NAME");
+      permissionName = (String)permissionField.get(null);
+      if (permissionName == null) {
+        throw new Skip(actionType, "it's NAME seems to be null");
+      }
+    } catch(NoSuchFieldException e) {
+      throw new Skip(actionType, "it doesn't have a NAME");
+    } catch (IllegalAccessException e) {
+      throw new Skip(actionType, "code generator not allowed to access NAME");
+    }
+    return permissionName;
+  }
+
+  private static Class<? extends ActionRequest> getActionRequestForAction(Class<? extends Action> actionType) throws Skip {
+    ParameterizedType actionTypeGeneric = (ParameterizedType)actionType.getGenericSuperclass();
+    List<Class<?>> actionRequestTypes = Stream.of(actionTypeGeneric.getActualTypeArguments())
+      .filter(t -> t instanceof Class<?>)
+      .map(r -> (Class<?>)r)
+      .filter(r -> ActionRequest.class.isAssignableFrom(r))
+      .collect(Collectors.toList());
+
+    if (actionRequestTypes.size() == 0) {
+      throw new Skip(actionType, "could not find ActionRequest in actual type arguments for Action");
+    } else if (actionRequestTypes.size() > 1) {
+      throw new Skip(actionType, "found multiple ActionRequest in actual type arguments for Action");
+    }
+
+    return (Class<? extends ActionRequest>)actionRequestTypes.get(0);
+  }
+
+  public static String singleResource(String functionName, String resourceType) {
+    JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/singleResource.twig");
+    JtwigModel model = JtwigModel.newModel()
+      .with("functionName", functionName)
+      .with("resourceType", resourceType);
+    return template.render(model);
+  }
+
+  public static String listResource(String functionName, String resourceType) {
+    JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/listResource.twig");
+    JtwigModel model = JtwigModel.newModel()
+      .with("functionName", functionName)
+      .with("resourceType", resourceType);
+    return template.render(model);
+  }
+
+  public static void main(String[] args) {
     Reflections reflections = new Reflections("org.elasticsearch");
 
-    Set<Class<? extends ActionRequest>> requestTypes = reflections.getSubTypesOf(ActionRequest.class);
-    requestTypes.stream().sorted(classComparator).forEach(t -> {
+    Set<Class<? extends ActionRequest>> allRequestTypes = reflections.getSubTypesOf(ActionRequest.class);
+    allRequestTypes.stream().sorted(classComparator).forEach(t -> {
       System.out.println("import " + t.getCanonicalName() + ';');
     });
-    
+
     System.out.println("\n\n");
 
     Set<Class<? extends Action>> actionTypes = reflections.getSubTypesOf(Action.class);
     actionTypes.stream().sorted(classComparator).forEach(actionType -> {
-      String canonicalName = actionType.getCanonicalName();
-      System.out.println(canonicalName);
-      
-      String permissionName;
       try {
-        Field permissionField = actionType.getField("NAME");
-        permissionName = (String)permissionField.get(null);
-        if (permissionName == null) {
-          System.out.println("/* Skipped " + actionType + " as it NAME seems to be null */");
+        String permissionName = getPermissionForAction(actionType);
+        Class<? extends ActionRequest> actionRequestType = getActionRequestForAction(actionType);
+        List<String> extractions = new ArrayList<String>();
+
+        if (hasMethod(actionRequestType, "indices", "java.lang.String[]")) {
+          JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/indices.twig");
+          JtwigModel model = JtwigModel.newModel()
+            .with("requestClassName", actionRequestType.getSimpleName())
+            .with("permissionName", permissionName);
+          extractions.add(template.render(model));
+        }
+
+        if (hasMethod(actionRequestType, "nodeIds", "java.lang.String[]")) {
+          JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/nodeIds.twig");
+          JtwigModel model = JtwigModel.newModel()
+            .with("requestClassName", actionRequestType.getSimpleName())
+            .with("permissionName", permissionName);
+          extractions.add(template.render(model));
           return;
         }
-      } catch(NoSuchFieldException e) {
-        System.out.println("/* Skipped " + actionType + " as it doesnt have a NAME */");
-        return;
-      } catch (IllegalAccessException e) {
-        System.out.println("/* Skipped " + actionType + " as code generator not allowed to access NAME */");
-        return;
-      }
-      
-      System.out.println(permissionName);
-      
-      Method newRequestBuilder = Stream.of(actionType.getMethods())
-        .filter(m -> !m.isBridge())
-        .filter(m -> m.getName() == "newRequestBuilder")
-        // .reduce((a, b) -> throw new RuntimeError("Got multiple newRequestBuilder!"))
-        .collect(Collectors.toList()).get(0);
 
-      Class<? extends ActionRequestBuilder> builderClass = (Class<? extends ActionRequestBuilder>)newRequestBuilder.getReturnType();
-      System.out.println(builderClass);
+        if (hasMethod(actionRequestType, "getNodes", "java.lang.String[]")) {
+          JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/getNodes.twig");
+          JtwigModel model = JtwigModel.newModel()
+            .with("requestClassName", actionRequestType.getSimpleName())
+            .with("permissionName", permissionName);
+          extractions.add(template.render(model));
+        }
 
-      try {
-        builderClass.getField("request");
-      } catch (NoSuchFieldException e) {
-        System.out.println("/* RequestBuilder does not have a request field */");
-      }
-      
-      /*for (Field field : ) {
-        System.out.format("Type: %s%n", field.getType());
-        System.out.format("GenericType: %s%n", field.getGenericType());
-      }*/
-    
-    /*Class<T> persistentClass = (Class<T>)
-         ((ParameterizedType)getClass().getGenericSuperclass())
-            .getActualTypeArguments()[0];*/
+        if (hasMethod(actionRequestType, "getRequests", "java.lang.String[]")) {
+          JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/getRequests.twig");
+          JtwigModel model = JtwigModel.newModel()
+            .with("requestClassName", actionRequestType.getSimpleName())
+            .with("permissionName", permissionName);
+          extractions.add(template.render(model));
+        }
 
-      System.out.println("**");
-      Arrays.asList(actionType.getGenericInterfaces()).stream().forEach(t -> System.out.println(t));
-      // ParameterizedType parameterizedType = (ParameterizedType) clazz.getGenericInterfaces()[0];
+        if (hasMethod(actionRequestType, "requests", "java.lang.String[]")) {
+          JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/requests.twig");
+          JtwigModel model = JtwigModel.newModel()
+            .with("requestClassName", actionRequestType.getSimpleName())
+            .with("permissionName", permissionName);
+          extractions.add(template.render(model));
+        }
 
-      System.out.println("**");
-      Arrays.asList(actionType.getTypeParameters()).stream().forEach(t -> System.out.println(t));
-      System.out.println("**");
+        if (actionRequestType.getSimpleName().contains("Repositor")) {
+          if (hasMethod(actionRequestType, "name", "java.lang.String")) {
+            JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/Repository.name.twig");
+            JtwigModel model = JtwigModel.newModel()
+              .with("requestClassName", actionRequestType.getSimpleName())
+              .with("permissionName", permissionName);
+            extractions.add(template.render(model));
+          }
+        }
 
-      /*Stream.of(builderClass.getMethods())
-        // .reduce((a, b) -> throw new RuntimeError("Got multiple newRequestBuilder!"))
-        .forEach(m -> System.out.println(m));*/
+        if (hasMethod(actionRequestType, "repositories", "java.lang.String[]")) {
+          JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/Repository.repositories.twig");
+          JtwigModel model = JtwigModel.newModel()
+            .with("requestClassName", actionRequestType.getSimpleName())
+            .with("permissionName", permissionName);
+          extractions.add(template.render(model));
+        }
 
-      /*if (hasMethod(t, "indices", "java.lang.String[]")) {
-        JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/indices.twig");
-        JtwigModel model = JtwigModel.newModel().with("requestClassName", t.getName()).with("permissionName", "SomePermissionAction");
+        if (actionRequestType.getSimpleName().contains("StoredScript")) {
+          if (hasMethod(actionRequestType, "id", "java.lang.String")) {
+            extractions.add(singleResource("id", "stored-script"));
+          }
+        }
+
+        if (hasMethod(actionRequestType, "snapshot", "java.lang.String")) {
+          extractions.add(singleResource("snapshot", "snapshot"));
+        }
+
+        if (hasMethod(actionRequestType, "snapshots", "java.lang.String[]")) {
+          extractions.add(singleResource("snapshots", "snapshot"));
+        }
+
+        if (extractions.size() == 0) {
+          JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/simple.twig");
+          JtwigModel model = JtwigModel.newModel()
+            .with("requestClassName", actionRequestType.getSimpleName())
+            .with("permissionName", permissionName);
+          extractions.add(template.render(model));
+        }
+
+        JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/body.twig");
+        JtwigModel model = JtwigModel.newModel()
+          .with("requestClassName", actionRequestType.getSimpleName())
+          .with("permissionName", permissionName)
+          .with("body", String.join("\n", extractions));
         template.render(model, System.out);
-        return;
-      }*/
-      
-      System.out.println("\n\n// Not able to generate wrapper for '" + actionType + "'\n\n");
+
+      } catch (Skip s) {
+        System.out.println("/* " + s.getMessage() + " */");
+      }
+
+      System.out.println("");
     });
   }
 }
