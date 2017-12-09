@@ -101,6 +101,22 @@ public class App {
     return template.render(model);
   }
 
+  public static String flatMapResource(String functionName, String resourceType) {
+    JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/flatMapResource.twig");
+    JtwigModel model = JtwigModel.newModel()
+      .with("functionName", functionName)
+      .with("resourceType", resourceType);
+    return template.render(model);
+  }
+
+  public static String indexRequest(String functionName, String resourceType) {
+    JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/indexRequest.twig");
+    JtwigModel model = JtwigModel.newModel()
+      .with("functionName", functionName)
+      .with("resourceType", resourceType);
+    return template.render(model);
+  }
+
   public static void main(String[] args) {
     Reflections reflections = new Reflections("org.elasticsearch");
 
@@ -118,63 +134,60 @@ public class App {
         Class<? extends ActionRequest> actionRequestType = getActionRequestForAction(actionType);
         List<String> extractions = new ArrayList<String>();
 
+        if (hasMethod(actionRequestType, "getIndex", "java.lang.String")) {
+          extractions.add(singleResource("getIndex", "index"));
+        }
+
         if (hasMethod(actionRequestType, "indices", "java.lang.String[]")) {
-          JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/indices.twig");
-          JtwigModel model = JtwigModel.newModel()
-            .with("requestClassName", actionRequestType.getSimpleName())
-            .with("permissionName", permissionName);
-          extractions.add(template.render(model));
+          extractions.add(listResource("indices", "index"));
+        }
+
+        if (hasMethod(actionRequestType, "getDestination", "org.elasticsearch.action.index.IndexRequest")) {
+          extractions.add(indexRequest("getDestination", "index"));
         }
 
         if (hasMethod(actionRequestType, "nodeIds", "java.lang.String[]")) {
-          JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/nodeIds.twig");
-          JtwigModel model = JtwigModel.newModel()
-            .with("requestClassName", actionRequestType.getSimpleName())
-            .with("permissionName", permissionName);
-          extractions.add(template.render(model));
-          return;
+          extractions.add(listResource("nodeIds", "node"));
         }
 
         if (hasMethod(actionRequestType, "getNodes", "java.lang.String[]")) {
-          JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/getNodes.twig");
-          JtwigModel model = JtwigModel.newModel()
-            .with("requestClassName", actionRequestType.getSimpleName())
-            .with("permissionName", permissionName);
-          extractions.add(template.render(model));
+          extractions.add(listResource("getNodes", "node"));
         }
 
         if (hasMethod(actionRequestType, "getRequests", "java.lang.String[]")) {
-          JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/getRequests.twig");
-          JtwigModel model = JtwigModel.newModel()
-            .with("requestClassName", actionRequestType.getSimpleName())
-            .with("permissionName", permissionName);
-          extractions.add(template.render(model));
+          extractions.add(flatMapResource("getRequests", "index"));
         }
 
         if (hasMethod(actionRequestType, "requests", "java.lang.String[]")) {
-          JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/requests.twig");
-          JtwigModel model = JtwigModel.newModel()
-            .with("requestClassName", actionRequestType.getSimpleName())
-            .with("permissionName", permissionName);
-          extractions.add(template.render(model));
+          extractions.add(flatMapResource("requests", "index"));
+        }
+
+        if (actionRequestType.getSimpleName().contains("IndexTemplate")) {
+          if (hasMethod(actionRequestType, "name", "java.lang.String")) {
+            extractions.add(singleResource("name", "index-template"));
+          }
+          if (hasMethod(actionRequestType, "names", "java.lang.String[]")) {
+            extractions.add(listResource("names", "index-template"));
+          }
+        }
+
+        if (actionRequestType.getSimpleName().contains("Pipeline")) {
+          if (hasMethod(actionRequestType, "getId", "java.lang.String")) {
+            extractions.add(singleResource("getId", "pipeline"));
+          }
+          if (hasMethod(actionRequestType, "getIds", "java.lang.String[]")) {
+            extractions.add(listResource("getIds", "pipeline"));
+          }
         }
 
         if (actionRequestType.getSimpleName().contains("Repositor")) {
           if (hasMethod(actionRequestType, "name", "java.lang.String")) {
-            JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/Repository.name.twig");
-            JtwigModel model = JtwigModel.newModel()
-              .with("requestClassName", actionRequestType.getSimpleName())
-              .with("permissionName", permissionName);
-            extractions.add(template.render(model));
+            extractions.add(singleResource("name", "repository"));
           }
         }
 
         if (hasMethod(actionRequestType, "repositories", "java.lang.String[]")) {
-          JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/Repository.repositories.twig");
-          JtwigModel model = JtwigModel.newModel()
-            .with("requestClassName", actionRequestType.getSimpleName())
-            .with("permissionName", permissionName);
-          extractions.add(template.render(model));
+          extractions.add(listResource("repositories", "repository"));
         }
 
         if (actionRequestType.getSimpleName().contains("StoredScript")) {
@@ -188,7 +201,7 @@ public class App {
         }
 
         if (hasMethod(actionRequestType, "snapshots", "java.lang.String[]")) {
-          extractions.add(singleResource("snapshots", "snapshot"));
+          extractions.add(listResource("snapshots", "snapshot"));
         }
 
         if (extractions.size() == 0) {

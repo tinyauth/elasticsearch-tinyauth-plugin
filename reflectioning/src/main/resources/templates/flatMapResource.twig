@@ -1,0 +1,5 @@
+  /* this {{ resourceType }} request has an {{ functionName }}() method */
+  req.{{ functionName }}().stream()
+    .flatMap(val -> Stream.of(val.indices()))
+    .map(val -> formatArn("{{ resourceType }}", val))
+    .forEach(permission::add);

@@ -1,5 +1,0 @@
-  /* this request has an requests() method */
-  req.requests().stream()
-    .flatMap(ir -> Stream.of(ir.indices()))
-    .map(idx -> formatArn("index", idx))
-    .forEach(permission::add);
