@@ -34,7 +34,7 @@ public class App {
       }
 
       if (!m.getGenericReturnType().getTypeName().equals(returnType)) {
-        System.out.println("Method rejected due to return type: " + m.getGenericReturnType().getTypeName());
+        System.out.println("// Method rejected due to return type: " + m.getGenericReturnType().getTypeName());
         return false;
       }
 
@@ -65,7 +65,11 @@ public class App {
     } catch (IllegalAccessException e) {
       throw new Skip(actionType, "code generator not allowed to access NAME");
     }
-    return permissionName;
+
+    return Stream.of(permissionName.split(":"))
+      .flatMap(part -> Stream.of(part.split("/")))
+      .map(part -> part.substring(0, 1).toUpperCase() + part.substring(1).toLowerCase())
+      .collect(Collectors.joining());
   }
 
   private static Class<? extends ActionRequest> getActionRequestForAction(Class<? extends Action> actionType) throws Skip {
@@ -111,6 +115,14 @@ public class App {
 
   public static String indexRequest(String functionName, String resourceType) {
     JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/indexRequest.twig");
+    JtwigModel model = JtwigModel.newModel()
+      .with("functionName", functionName)
+      .with("resourceType", resourceType);
+    return template.render(model);
+  }
+
+  public static String recursiveRequest(String functionName, String resourceType) {
+    JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/recursiveRequest.twig");
     JtwigModel model = JtwigModel.newModel()
       .with("functionName", functionName)
       .with("resourceType", resourceType);
@@ -202,6 +214,22 @@ public class App {
 
         if (hasMethod(actionRequestType, "snapshots", "java.lang.String[]")) {
           extractions.add(listResource("snapshots", "snapshot"));
+        }
+
+        if (hasMethod(actionRequestType, "requests", "java.util.List<org.elasticsearch.action.search.SearchRequest>")) {
+          extractions.add(flatMapResource("requests", "index"));
+        }
+
+        if (hasMethod(actionRequestType, "getItems", "java.util.List<org.elasticsearch.action.get.MultiGetRequest$Item>")) {
+          extractions.add(flatMapResource("getItems", "index"));
+        }
+
+        if (hasMethod(actionRequestType, "getRequests", "java.util.List<org.elasticsearch.action.termvectors.TermVectorsRequest>")) {
+          extractions.add(flatMapResource("getRequests", "index"));
+        }
+
+        if (hasMethod(actionRequestType, "getRequests", "java.util.List<org.elasticsearch.action.DocWriteRequest>")) {
+          extractions.add(recursiveRequest("getRequests", "index"));
         }
 
         if (extractions.size() == 0) {

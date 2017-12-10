@@ -61,7 +61,6 @@ import io.tinyauth.elasticsearch.exceptions.ConnectionError;
 import io.tinyauth.elasticsearch.Constants;
 import io.tinyauth.elasticsearch.Origin;
 import io.tinyauth.elasticsearch.ActionIndicesAdaptor;
-import io.tinyauth.elasticsearch.ActionNameAdaptor;
 
 
 @Singleton
@@ -148,7 +147,7 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
     String body = "";
 
     logger.error(indexExtractor.collectPermissions(request));
-    
+
 
       JSONStringer builder = new JSONStringer();
       builder.object();
