@@ -228,8 +228,8 @@ public class App {
           extractions.add(flatMapResource("getRequests", "index"));
         }
 
-        if (hasMethod(actionRequestType, "getRequests", "java.util.List<org.elasticsearch.action.DocWriteRequest>")) {
-          extractions.add(recursiveRequest("getRequests", "index"));
+        if (hasMethod(actionRequestType, "requests", "java.util.List<org.elasticsearch.action.DocWriteRequest>")) {
+          extractions.add(recursiveRequest("requests", "index"));
         }
 
         if (extractions.size() == 0) {

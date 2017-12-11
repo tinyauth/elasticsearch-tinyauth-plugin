@@ -182,7 +182,6 @@ public class ActionIndicesAdaptor {
     this.region = region;
 
     this.methods = new HashMap<>();
-
     /* ClusterAllocationExplainRequest */
     this.methods.put(ClusterAllocationExplainRequest.class, (permissions, request) -> {
       ClusterAllocationExplainRequest req = (ClusterAllocationExplainRequest)request;
@@ -750,8 +749,8 @@ public class ActionIndicesAdaptor {
     this.methods.put(BulkRequest.class, (permissions, request) -> {
       BulkRequest req = (BulkRequest)request;
       Set<String> permission = permissions.get("IndicesDataWriteBulk");
-      /* WARNING: No particular resource types were identified */
-      permission.add(formatArn());
+      /* this index related request has an requests() method */
+      req.requests().stream().forEach(ir -> getIndices(permissions, (ActionRequest) ir));
 
     });
 
@@ -876,6 +875,7 @@ public class ActionIndicesAdaptor {
     });
 
     // Method rejected due to return type: java.util.List<org.elasticsearch.action.search.SearchRequest>
+    // Method rejected due to return type: java.util.List<org.elasticsearch.action.search.SearchRequest>
     /* MultiSearchRequest */
     this.methods.put(MultiSearchRequest.class, (permissions, request) -> {
       MultiSearchRequest req = (MultiSearchRequest)request;
@@ -906,7 +906,6 @@ public class ActionIndicesAdaptor {
 
     });
 
-    // Method rejected due to return type: java.util.List<org.elasticsearch.action.termvectors.TermVectorsRequest>
     // Method rejected due to return type: java.util.List<org.elasticsearch.action.termvectors.TermVectorsRequest>
     /* MultiTermVectorsRequest */
     this.methods.put(MultiTermVectorsRequest.class, (permissions, request) -> {
