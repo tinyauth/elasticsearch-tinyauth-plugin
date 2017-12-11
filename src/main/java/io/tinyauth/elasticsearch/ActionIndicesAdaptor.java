@@ -182,6 +182,7 @@ public class ActionIndicesAdaptor {
     this.region = region;
 
     this.methods = new HashMap<>();
+
     /* ClusterAllocationExplainRequest */
     this.methods.put(ClusterAllocationExplainRequest.class, (permissions, request) -> {
       ClusterAllocationExplainRequest req = (ClusterAllocationExplainRequest)request;
@@ -204,7 +205,7 @@ public class ActionIndicesAdaptor {
     /* NodesHotThreadsRequest */
     this.methods.put(NodesHotThreadsRequest.class, (permissions, request) -> {
       NodesHotThreadsRequest req = (NodesHotThreadsRequest)request;
-      Set<String> permission = permissions.get("ClusterMonitorNodesHot_threads");
+      Set<String> permission = permissions.get("ClusterMonitorNodesHotThreads");
       /* WARNING: No particular resource types were identified */
       permission.add(formatArn());
 
@@ -323,7 +324,7 @@ public class ActionIndicesAdaptor {
     /* ClusterSearchShardsRequest */
     this.methods.put(ClusterSearchShardsRequest.class, (permissions, request) -> {
       ClusterSearchShardsRequest req = (ClusterSearchShardsRequest)request;
-      Set<String> permission = permissions.get("IndicesAdminShardsSearch_shards");
+      Set<String> permission = permissions.get("IndicesAdminShardsSearchShards");
       /* this index related request has an indices() method */
       Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
 
@@ -536,7 +537,7 @@ public class ActionIndicesAdaptor {
     /* SyncedFlushRequest */
     this.methods.put(SyncedFlushRequest.class, (permissions, request) -> {
       SyncedFlushRequest req = (SyncedFlushRequest)request;
-      Set<String> permission = permissions.get("IndicesAdminSynced_flush");
+      Set<String> permission = permissions.get("IndicesAdminSyncedFlush");
       /* this index related request has an indices() method */
       Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
 
@@ -653,7 +654,7 @@ public class ActionIndicesAdaptor {
     /* IndicesShardStoresRequest */
     this.methods.put(IndicesShardStoresRequest.class, (permissions, request) -> {
       IndicesShardStoresRequest req = (IndicesShardStoresRequest)request;
-      Set<String> permission = permissions.get("IndicesMonitorShard_stores");
+      Set<String> permission = permissions.get("IndicesMonitorShardStores");
       /* this index related request has an indices() method */
       Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
 
@@ -775,7 +776,7 @@ public class ActionIndicesAdaptor {
     /* FieldCapabilitiesRequest */
     this.methods.put(FieldCapabilitiesRequest.class, (permissions, request) -> {
       FieldCapabilitiesRequest req = (FieldCapabilitiesRequest)request;
-      Set<String> permission = permissions.get("IndicesDataReadField_caps");
+      Set<String> permission = permissions.get("IndicesDataReadFieldCaps");
       /* this index related request has an indices() method */
       Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
 
@@ -784,7 +785,7 @@ public class ActionIndicesAdaptor {
     /* FieldStatsRequest */
     this.methods.put(FieldStatsRequest.class, (permissions, request) -> {
       FieldStatsRequest req = (FieldStatsRequest)request;
-      Set<String> permission = permissions.get("IndicesDataReadField_stats");
+      Set<String> permission = permissions.get("IndicesDataReadFieldStats");
       /* this index related request has an indices() method */
       Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
 

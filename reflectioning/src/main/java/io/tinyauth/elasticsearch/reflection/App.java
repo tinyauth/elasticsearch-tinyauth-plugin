@@ -68,6 +68,7 @@ public class App {
 
     return Stream.of(permissionName.split(":"))
       .flatMap(part -> Stream.of(part.split("/")))
+      .flatMap(part -> Stream.of(part.split("_")))
       .map(part -> part.substring(0, 1).toUpperCase() + part.substring(1).toLowerCase())
       .collect(Collectors.joining());
   }
