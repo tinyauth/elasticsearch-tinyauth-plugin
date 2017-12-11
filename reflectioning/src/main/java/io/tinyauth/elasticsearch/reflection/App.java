@@ -89,44 +89,35 @@ public class App {
     return (Class<? extends ActionRequest>)actionRequestTypes.get(0);
   }
 
-  public static String singleResource(String functionName, String resourceType) {
-    JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/singleResource.twig");
-    JtwigModel model = JtwigModel.newModel()
+  public static String renderTemplate(String templateName, JtwigModel model) {  
+    JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/" + templateName + ".twig");
+    return template.render(model);    
+  }
+
+  public static String renderTemplate(String template, String functionName, String resourceType) {
+    return renderTemplate(template, JtwigModel.newModel()
       .with("functionName", functionName)
-      .with("resourceType", resourceType);
-    return template.render(model);
+      .with("resourceType", resourceType));
+  }
+
+  public static String singleResource(String functionName, String resourceType) {
+    return renderTemplate("singleResource", functionName, resourceType);
   }
 
   public static String listResource(String functionName, String resourceType) {
-    JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/listResource.twig");
-    JtwigModel model = JtwigModel.newModel()
-      .with("functionName", functionName)
-      .with("resourceType", resourceType);
-    return template.render(model);
+    return renderTemplate("listResource", functionName, resourceType);
   }
 
   public static String flatMapResource(String functionName, String resourceType) {
-    JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/flatMapResource.twig");
-    JtwigModel model = JtwigModel.newModel()
-      .with("functionName", functionName)
-      .with("resourceType", resourceType);
-    return template.render(model);
+    return renderTemplate("flatMapResource", functionName, resourceType);
   }
 
   public static String indexRequest(String functionName, String resourceType) {
-    JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/indexRequest.twig");
-    JtwigModel model = JtwigModel.newModel()
-      .with("functionName", functionName)
-      .with("resourceType", resourceType);
-    return template.render(model);
+    return renderTemplate("indexRequest", functionName, resourceType);
   }
 
   public static String recursiveRequest(String functionName, String resourceType) {
-    JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/recursiveRequest.twig");
-    JtwigModel model = JtwigModel.newModel()
-      .with("functionName", functionName)
-      .with("resourceType", resourceType);
-    return template.render(model);
+    return renderTemplate("recursiveRequest", functionName, resourceType);
   }
 
   public static void main(String[] args) {
@@ -233,19 +224,15 @@ public class App {
         }
 
         if (extractions.size() == 0) {
-          JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/simple.twig");
-          JtwigModel model = JtwigModel.newModel()
+          extractions.add(renderTemplate("simple", JtwigModel.newModel()
             .with("requestClassName", actionRequestType.getSimpleName())
-            .with("permissionName", permissionName);
-          extractions.add(template.render(model));
+            .with("permissionName", permissionName)));
         }
 
-        JtwigTemplate template = JtwigTemplate.classpathTemplate("templates/body.twig");
-        JtwigModel model = JtwigModel.newModel()
+        System.out.println(renderTemplate("body", JtwigModel.newModel()
           .with("requestClassName", actionRequestType.getSimpleName())
           .with("permissionName", permissionName)
-          .with("body", String.join("\n", extractions));
-        template.render(model, System.out);
+          .with("body", String.join("\n", extractions))));
 
       } catch (Skip s) {
         System.out.println("/* " + s.getMessage() + " */");
