@@ -120,12 +120,18 @@ public class App {
     return renderTemplate("recursiveRequest", functionName, resourceType);
   }
 
+  public static String getImport(Class<?> klass) {
+    while (klass.getDeclaringClass() != null)
+      klass = klass.getDeclaringClass();
+    return klass.getCanonicalName();
+  }
+
   public static void main(String[] args) {
     Reflections reflections = new Reflections("org.elasticsearch");
 
     Set<Class<? extends ActionRequest>> allRequestTypes = reflections.getSubTypesOf(ActionRequest.class);
     allRequestTypes.stream().sorted(classComparator).forEach(t -> {
-      System.out.println("import " + t.getCanonicalName() + ';');
+      System.out.println("import " + getImport(t) + ';');
     });
 
     System.out.println("\n\n");
