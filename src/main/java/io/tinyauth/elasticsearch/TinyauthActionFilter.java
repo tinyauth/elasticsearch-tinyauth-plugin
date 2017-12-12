@@ -139,14 +139,14 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
     }
 
     if (endpoint == null || accessKeyId == null || secretAccessKey == null) {
-      logger.error("Authentication endpoint for tinyauth not configured");
+      logger.info("Authentication endpoint for tinyauth not configured");
       listener.onFailure(new ConnectionError("Authentication not attempted"));
       return;
     }
 
     String body = "";
 
-    logger.error(indexExtractor.collectPermissions(request));
+    // logger.debug(indexExtractor.collectPermissions(request));
 
 
       JSONStringer builder = new JSONStringer();
@@ -174,8 +174,6 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
 
         body = builder.toString();
 
-        logger.error(body);
-
     Unirest.post(endpoint + "v1/services/{service}/authorize-by-token")
       .routeParam("service", serviceName)
       .basicAuth(accessKeyId, secretAccessKey)
@@ -191,15 +189,13 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
 
         @Override
         public void completed(HttpResponse<String> response) {
-          logger.error("The request completed\n" + response.getBody());
-
           try {
             JSONObject authz = new JSONObject(response.getBody());
             if (authz.getBoolean("Authorized")) {
-              logger.error("is authorized");
+              logger.debug("is authorized");
               chain.proceed(task, action, request, listener);
             } else {
-              logger.error("is not authorized");
+              logger.debug("is not authorized");
               listener.onFailure(new ElasticsearchSecurityException("no permissions for user", RestStatus.FORBIDDEN));
             }
           } catch (JSONException e) {

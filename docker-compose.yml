@@ -28,3 +28,10 @@ services:
       - elasticsearch_data:/usr/share/elasticsearch/data
     ports:
       - "127.0.0.1:9200:9200"
+
+  kibana:
+    build:
+      context: kibana
+      dockerfile: Dockerfile
+    depends_on:
+    - elasticsearch

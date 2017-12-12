@@ -386,8 +386,11 @@ public class ActionIndicesAdaptor {
       ClusterStateRequest req = (ClusterStateRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorState");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
-
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
     });
 
     /* ClusterStatsRequest */
