@@ -1,2 +1,6 @@
   /* this {{ resourceType }} related request has an {{ functionName }}() method that returns an IndexRequest */
-  Stream.of(req.{{ functionName }}().indices()).map(idx -> formatArn("{{ resourceType }}", idx)).forEach(permission::add);
+  if (req.{{ functionName }}().indices().length() == 0) {
+    permission.add(formatArn("{{ resourceType }}", "_all"));
+  } else {
+    Stream.of(req.{{ functionName }}().indices()).map(idx -> formatArn("{{ resourceType }}", idx)).forEach(permission::add);
+  }

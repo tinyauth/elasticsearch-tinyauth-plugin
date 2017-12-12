@@ -1,2 +1,6 @@
   /* this {{ resourceType }} related request has an {{ functionName }}() method */
-  permission.add(formatArn("{{ resourceType }}", req.{{ functionName }}()));
+  if (req.{{ functionName }}() == null) {
+    permission.add(formatArn("{{ resourceType }}", "_all"));
+  } else {
+    permission.add(formatArn("{{ resourceType }}", req.{{ functionName }}()));
+  }

@@ -188,18 +188,28 @@ public class ActionIndicesAdaptor {
       ClusterAllocationExplainRequest req = (ClusterAllocationExplainRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorAllocationExplain");
       /* this index related request has an getIndex() method */
-      permission.add(formatArn("index", req.getIndex()));
+      if (req.getIndex() == null) {
+        permission.add(formatArn("index", "_all"));
+      } else {
+        permission.add(formatArn("index", req.getIndex()));
+      }
 
     });
+
 
     /* ClusterHealthRequest */
     this.methods.put(ClusterHealthRequest.class, (permissions, request) -> {
       ClusterHealthRequest req = (ClusterHealthRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorHealth");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     // Method rejected due to return type: int
     /* NodesHotThreadsRequest */
@@ -211,6 +221,7 @@ public class ActionIndicesAdaptor {
 
     });
 
+
     // Method rejected due to return type: boolean
     /* NodesInfoRequest */
     this.methods.put(NodesInfoRequest.class, (permissions, request) -> {
@@ -220,6 +231,7 @@ public class ActionIndicesAdaptor {
       permission.add(formatArn());
 
     });
+
 
     // Method rejected due to return type: org.elasticsearch.action.admin.indices.stats.CommonStatsFlags
     /* NodesStatsRequest */
@@ -231,14 +243,20 @@ public class ActionIndicesAdaptor {
 
     });
 
+
     /* CancelTasksRequest */
     this.methods.put(CancelTasksRequest.class, (permissions, request) -> {
       CancelTasksRequest req = (CancelTasksRequest)request;
       Set<String> permission = permissions.get("ClusterAdminTasksCancel");
       /* this node related request has an getNodes() method */
-      Stream.of(req.getNodes()).map(idx -> formatArn("node", idx)).forEach(permission::add);
+      if (req.getNodes().length > 0) {
+        Stream.of(req.getNodes()).map(idx -> formatArn("node", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("node", "_all"));
+      }
 
     });
+
 
     /* GetTaskRequest */
     this.methods.put(GetTaskRequest.class, (permissions, request) -> {
@@ -249,14 +267,20 @@ public class ActionIndicesAdaptor {
 
     });
 
+
     /* ListTasksRequest */
     this.methods.put(ListTasksRequest.class, (permissions, request) -> {
       ListTasksRequest req = (ListTasksRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorTasksLists");
       /* this node related request has an getNodes() method */
-      Stream.of(req.getNodes()).map(idx -> formatArn("node", idx)).forEach(permission::add);
+      if (req.getNodes().length > 0) {
+        Stream.of(req.getNodes()).map(idx -> formatArn("node", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("node", "_all"));
+      }
 
     });
+
 
     /* RemoteInfoRequest */
     this.methods.put(RemoteInfoRequest.class, (permissions, request) -> {
@@ -267,41 +291,62 @@ public class ActionIndicesAdaptor {
 
     });
 
+
     /* DeleteRepositoryRequest */
     this.methods.put(DeleteRepositoryRequest.class, (permissions, request) -> {
       DeleteRepositoryRequest req = (DeleteRepositoryRequest)request;
       Set<String> permission = permissions.get("ClusterAdminRepositoryDelete");
       /* this repository related request has an name() method */
-      permission.add(formatArn("repository", req.name()));
+      if (req.name() == null) {
+        permission.add(formatArn("repository", "_all"));
+      } else {
+        permission.add(formatArn("repository", req.name()));
+      }
 
     });
+
 
     /* GetRepositoriesRequest */
     this.methods.put(GetRepositoriesRequest.class, (permissions, request) -> {
       GetRepositoriesRequest req = (GetRepositoriesRequest)request;
       Set<String> permission = permissions.get("ClusterAdminRepositoryGet");
       /* this repository related request has an repositories() method */
-      Stream.of(req.repositories()).map(idx -> formatArn("repository", idx)).forEach(permission::add);
+      if (req.repositories().length > 0) {
+        Stream.of(req.repositories()).map(idx -> formatArn("repository", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("repository", "_all"));
+      }
 
     });
+
 
     /* PutRepositoryRequest */
     this.methods.put(PutRepositoryRequest.class, (permissions, request) -> {
       PutRepositoryRequest req = (PutRepositoryRequest)request;
       Set<String> permission = permissions.get("ClusterAdminRepositoryPut");
       /* this repository related request has an name() method */
-      permission.add(formatArn("repository", req.name()));
+      if (req.name() == null) {
+        permission.add(formatArn("repository", "_all"));
+      } else {
+        permission.add(formatArn("repository", req.name()));
+      }
 
     });
+
 
     /* VerifyRepositoryRequest */
     this.methods.put(VerifyRepositoryRequest.class, (permissions, request) -> {
       VerifyRepositoryRequest req = (VerifyRepositoryRequest)request;
       Set<String> permission = permissions.get("ClusterAdminRepositoryVerify");
       /* this repository related request has an name() method */
-      permission.add(formatArn("repository", req.name()));
+      if (req.name() == null) {
+        permission.add(formatArn("repository", "_all"));
+      } else {
+        permission.add(formatArn("repository", req.name()));
+      }
 
     });
+
 
     /* ClusterRerouteRequest */
     this.methods.put(ClusterRerouteRequest.class, (permissions, request) -> {
@@ -312,6 +357,7 @@ public class ActionIndicesAdaptor {
 
     });
 
+
     /* ClusterUpdateSettingsRequest */
     this.methods.put(ClusterUpdateSettingsRequest.class, (permissions, request) -> {
       ClusterUpdateSettingsRequest req = (ClusterUpdateSettingsRequest)request;
@@ -321,65 +367,104 @@ public class ActionIndicesAdaptor {
 
     });
 
+
     /* ClusterSearchShardsRequest */
     this.methods.put(ClusterSearchShardsRequest.class, (permissions, request) -> {
       ClusterSearchShardsRequest req = (ClusterSearchShardsRequest)request;
       Set<String> permission = permissions.get("IndicesAdminShardsSearchShards");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* CreateSnapshotRequest */
     this.methods.put(CreateSnapshotRequest.class, (permissions, request) -> {
       CreateSnapshotRequest req = (CreateSnapshotRequest)request;
       Set<String> permission = permissions.get("ClusterAdminSnapshotCreate");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
       /* this snapshot related request has an snapshot() method */
-      permission.add(formatArn("snapshot", req.snapshot()));
+      if (req.snapshot() == null) {
+        permission.add(formatArn("snapshot", "_all"));
+      } else {
+        permission.add(formatArn("snapshot", req.snapshot()));
+      }
 
     });
+
 
     /* DeleteSnapshotRequest */
     this.methods.put(DeleteSnapshotRequest.class, (permissions, request) -> {
       DeleteSnapshotRequest req = (DeleteSnapshotRequest)request;
       Set<String> permission = permissions.get("ClusterAdminSnapshotDelete");
       /* this snapshot related request has an snapshot() method */
-      permission.add(formatArn("snapshot", req.snapshot()));
+      if (req.snapshot() == null) {
+        permission.add(formatArn("snapshot", "_all"));
+      } else {
+        permission.add(formatArn("snapshot", req.snapshot()));
+      }
 
     });
+
 
     /* GetSnapshotsRequest */
     this.methods.put(GetSnapshotsRequest.class, (permissions, request) -> {
       GetSnapshotsRequest req = (GetSnapshotsRequest)request;
       Set<String> permission = permissions.get("ClusterAdminSnapshotGet");
       /* this snapshot related request has an snapshots() method */
-      Stream.of(req.snapshots()).map(idx -> formatArn("snapshot", idx)).forEach(permission::add);
+      if (req.snapshots().length > 0) {
+        Stream.of(req.snapshots()).map(idx -> formatArn("snapshot", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("snapshot", "_all"));
+      }
 
     });
+
 
     /* RestoreSnapshotRequest */
     this.methods.put(RestoreSnapshotRequest.class, (permissions, request) -> {
       RestoreSnapshotRequest req = (RestoreSnapshotRequest)request;
       Set<String> permission = permissions.get("ClusterAdminSnapshotRestore");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
       /* this snapshot related request has an snapshot() method */
-      permission.add(formatArn("snapshot", req.snapshot()));
+      if (req.snapshot() == null) {
+        permission.add(formatArn("snapshot", "_all"));
+      } else {
+        permission.add(formatArn("snapshot", req.snapshot()));
+      }
 
     });
+
 
     /* SnapshotsStatusRequest */
     this.methods.put(SnapshotsStatusRequest.class, (permissions, request) -> {
       SnapshotsStatusRequest req = (SnapshotsStatusRequest)request;
       Set<String> permission = permissions.get("ClusterAdminSnapshotStatus");
       /* this snapshot related request has an snapshots() method */
-      Stream.of(req.snapshots()).map(idx -> formatArn("snapshot", idx)).forEach(permission::add);
+      if (req.snapshots().length > 0) {
+        Stream.of(req.snapshots()).map(idx -> formatArn("snapshot", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("snapshot", "_all"));
+      }
 
     });
+
 
     /* ClusterStateRequest */
     this.methods.put(ClusterStateRequest.class, (permissions, request) -> {
@@ -391,7 +476,9 @@ public class ActionIndicesAdaptor {
       } else {
         permission.add(formatArn("index", "_all"));
       }
+
     });
+
 
     /* ClusterStatsRequest */
     this.methods.put(ClusterStatsRequest.class, (permissions, request) -> {
@@ -402,32 +489,48 @@ public class ActionIndicesAdaptor {
 
     });
 
+
     /* DeleteStoredScriptRequest */
     this.methods.put(DeleteStoredScriptRequest.class, (permissions, request) -> {
       DeleteStoredScriptRequest req = (DeleteStoredScriptRequest)request;
       Set<String> permission = permissions.get("ClusterAdminScriptDelete");
       /* this stored-script related request has an id() method */
-      permission.add(formatArn("stored-script", req.id()));
+      if (req.id() == null) {
+        permission.add(formatArn("stored-script", "_all"));
+      } else {
+        permission.add(formatArn("stored-script", req.id()));
+      }
 
     });
+
 
     /* GetStoredScriptRequest */
     this.methods.put(GetStoredScriptRequest.class, (permissions, request) -> {
       GetStoredScriptRequest req = (GetStoredScriptRequest)request;
       Set<String> permission = permissions.get("ClusterAdminScriptGet");
       /* this stored-script related request has an id() method */
-      permission.add(formatArn("stored-script", req.id()));
+      if (req.id() == null) {
+        permission.add(formatArn("stored-script", "_all"));
+      } else {
+        permission.add(formatArn("stored-script", req.id()));
+      }
 
     });
+
 
     /* PutStoredScriptRequest */
     this.methods.put(PutStoredScriptRequest.class, (permissions, request) -> {
       PutStoredScriptRequest req = (PutStoredScriptRequest)request;
       Set<String> permission = permissions.get("ClusterAdminScriptPut");
       /* this stored-script related request has an id() method */
-      permission.add(formatArn("stored-script", req.id()));
+      if (req.id() == null) {
+        permission.add(formatArn("stored-script", "_all"));
+      } else {
+        permission.add(formatArn("stored-script", req.id()));
+      }
 
     });
+
 
     /* PendingClusterTasksRequest */
     this.methods.put(PendingClusterTasksRequest.class, (permissions, request) -> {
@@ -438,6 +541,7 @@ public class ActionIndicesAdaptor {
 
     });
 
+
     /* IndicesAliasesRequest */
     this.methods.put(IndicesAliasesRequest.class, (permissions, request) -> {
       IndicesAliasesRequest req = (IndicesAliasesRequest)request;
@@ -447,287 +551,447 @@ public class ActionIndicesAdaptor {
 
     });
 
+
     /* GetAliasesRequest */
     this.methods.put(GetAliasesRequest.class, (permissions, request) -> {
       GetAliasesRequest req = (GetAliasesRequest)request;
       Set<String> permission = permissions.get("IndicesAdminAliasesExists");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* GetAliasesRequest */
     this.methods.put(GetAliasesRequest.class, (permissions, request) -> {
       GetAliasesRequest req = (GetAliasesRequest)request;
       Set<String> permission = permissions.get("IndicesAdminAliasesGet");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* AnalyzeRequest */
     this.methods.put(AnalyzeRequest.class, (permissions, request) -> {
       AnalyzeRequest req = (AnalyzeRequest)request;
       Set<String> permission = permissions.get("IndicesAdminAnalyze");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* ClearIndicesCacheRequest */
     this.methods.put(ClearIndicesCacheRequest.class, (permissions, request) -> {
       ClearIndicesCacheRequest req = (ClearIndicesCacheRequest)request;
       Set<String> permission = permissions.get("IndicesAdminCacheClear");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* CloseIndexRequest */
     this.methods.put(CloseIndexRequest.class, (permissions, request) -> {
       CloseIndexRequest req = (CloseIndexRequest)request;
       Set<String> permission = permissions.get("IndicesAdminClose");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* CreateIndexRequest */
     this.methods.put(CreateIndexRequest.class, (permissions, request) -> {
       CreateIndexRequest req = (CreateIndexRequest)request;
       Set<String> permission = permissions.get("IndicesAdminCreate");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* DeleteIndexRequest */
     this.methods.put(DeleteIndexRequest.class, (permissions, request) -> {
       DeleteIndexRequest req = (DeleteIndexRequest)request;
       Set<String> permission = permissions.get("IndicesAdminDelete");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* IndicesExistsRequest */
     this.methods.put(IndicesExistsRequest.class, (permissions, request) -> {
       IndicesExistsRequest req = (IndicesExistsRequest)request;
       Set<String> permission = permissions.get("IndicesAdminExists");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* TypesExistsRequest */
     this.methods.put(TypesExistsRequest.class, (permissions, request) -> {
       TypesExistsRequest req = (TypesExistsRequest)request;
       Set<String> permission = permissions.get("IndicesAdminTypesExists");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* FlushRequest */
     this.methods.put(FlushRequest.class, (permissions, request) -> {
       FlushRequest req = (FlushRequest)request;
       Set<String> permission = permissions.get("IndicesAdminFlush");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* SyncedFlushRequest */
     this.methods.put(SyncedFlushRequest.class, (permissions, request) -> {
       SyncedFlushRequest req = (SyncedFlushRequest)request;
       Set<String> permission = permissions.get("IndicesAdminSyncedFlush");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* ForceMergeRequest */
     this.methods.put(ForceMergeRequest.class, (permissions, request) -> {
       ForceMergeRequest req = (ForceMergeRequest)request;
       Set<String> permission = permissions.get("IndicesAdminForcemerge");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* GetIndexRequest */
     this.methods.put(GetIndexRequest.class, (permissions, request) -> {
       GetIndexRequest req = (GetIndexRequest)request;
       Set<String> permission = permissions.get("IndicesAdminGet");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* GetFieldMappingsRequest */
     this.methods.put(GetFieldMappingsRequest.class, (permissions, request) -> {
       GetFieldMappingsRequest req = (GetFieldMappingsRequest)request;
       Set<String> permission = permissions.get("IndicesAdminMappingsFieldsGet");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* GetMappingsRequest */
     this.methods.put(GetMappingsRequest.class, (permissions, request) -> {
       GetMappingsRequest req = (GetMappingsRequest)request;
       Set<String> permission = permissions.get("IndicesAdminMappingsGet");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* PutMappingRequest */
     this.methods.put(PutMappingRequest.class, (permissions, request) -> {
       PutMappingRequest req = (PutMappingRequest)request;
       Set<String> permission = permissions.get("IndicesAdminMappingPut");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* OpenIndexRequest */
     this.methods.put(OpenIndexRequest.class, (permissions, request) -> {
       OpenIndexRequest req = (OpenIndexRequest)request;
       Set<String> permission = permissions.get("IndicesAdminOpen");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* RecoveryRequest */
     this.methods.put(RecoveryRequest.class, (permissions, request) -> {
       RecoveryRequest req = (RecoveryRequest)request;
       Set<String> permission = permissions.get("IndicesMonitorRecovery");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* RefreshRequest */
     this.methods.put(RefreshRequest.class, (permissions, request) -> {
       RefreshRequest req = (RefreshRequest)request;
       Set<String> permission = permissions.get("IndicesAdminRefresh");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* RolloverRequest */
     this.methods.put(RolloverRequest.class, (permissions, request) -> {
       RolloverRequest req = (RolloverRequest)request;
       Set<String> permission = permissions.get("IndicesAdminRollover");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* IndicesSegmentsRequest */
     this.methods.put(IndicesSegmentsRequest.class, (permissions, request) -> {
       IndicesSegmentsRequest req = (IndicesSegmentsRequest)request;
       Set<String> permission = permissions.get("IndicesMonitorSegments");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* GetSettingsRequest */
     this.methods.put(GetSettingsRequest.class, (permissions, request) -> {
       GetSettingsRequest req = (GetSettingsRequest)request;
       Set<String> permission = permissions.get("IndicesMonitorSettingsGet");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* UpdateSettingsRequest */
     this.methods.put(UpdateSettingsRequest.class, (permissions, request) -> {
       UpdateSettingsRequest req = (UpdateSettingsRequest)request;
       Set<String> permission = permissions.get("IndicesAdminSettingsUpdate");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* IndicesShardStoresRequest */
     this.methods.put(IndicesShardStoresRequest.class, (permissions, request) -> {
       IndicesShardStoresRequest req = (IndicesShardStoresRequest)request;
       Set<String> permission = permissions.get("IndicesMonitorShardStores");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* ShrinkRequest */
     this.methods.put(ShrinkRequest.class, (permissions, request) -> {
       ShrinkRequest req = (ShrinkRequest)request;
       Set<String> permission = permissions.get("IndicesAdminShrink");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* IndicesStatsRequest */
     this.methods.put(IndicesStatsRequest.class, (permissions, request) -> {
       IndicesStatsRequest req = (IndicesStatsRequest)request;
       Set<String> permission = permissions.get("IndicesMonitorStats");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* DeleteIndexTemplateRequest */
     this.methods.put(DeleteIndexTemplateRequest.class, (permissions, request) -> {
       DeleteIndexTemplateRequest req = (DeleteIndexTemplateRequest)request;
       Set<String> permission = permissions.get("IndicesAdminTemplateDelete");
       /* this index-template related request has an name() method */
-      permission.add(formatArn("index-template", req.name()));
+      if (req.name() == null) {
+        permission.add(formatArn("index-template", "_all"));
+      } else {
+        permission.add(formatArn("index-template", req.name()));
+      }
 
     });
+
 
     /* GetIndexTemplatesRequest */
     this.methods.put(GetIndexTemplatesRequest.class, (permissions, request) -> {
       GetIndexTemplatesRequest req = (GetIndexTemplatesRequest)request;
       Set<String> permission = permissions.get("IndicesAdminTemplateGet");
       /* this index-template related request has an names() method */
-      Stream.of(req.names()).map(idx -> formatArn("index-template", idx)).forEach(permission::add);
+      if (req.names().length > 0) {
+        Stream.of(req.names()).map(idx -> formatArn("index-template", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index-template", "_all"));
+      }
 
     });
+
 
     /* PutIndexTemplateRequest */
     this.methods.put(PutIndexTemplateRequest.class, (permissions, request) -> {
       PutIndexTemplateRequest req = (PutIndexTemplateRequest)request;
       Set<String> permission = permissions.get("IndicesAdminTemplatePut");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
       /* this index-template related request has an name() method */
-      permission.add(formatArn("index-template", req.name()));
+      if (req.name() == null) {
+        permission.add(formatArn("index-template", "_all"));
+      } else {
+        permission.add(formatArn("index-template", req.name()));
+      }
 
     });
+
 
     /* UpgradeStatusRequest */
     this.methods.put(UpgradeStatusRequest.class, (permissions, request) -> {
       UpgradeStatusRequest req = (UpgradeStatusRequest)request;
       Set<String> permission = permissions.get("IndicesMonitorUpgrade");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* UpgradeRequest */
     this.methods.put(UpgradeRequest.class, (permissions, request) -> {
       UpgradeRequest req = (UpgradeRequest)request;
       Set<String> permission = permissions.get("IndicesAdminUpgrade");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* UpgradeSettingsRequest */
     this.methods.put(UpgradeSettingsRequest.class, (permissions, request) -> {
@@ -738,14 +1002,20 @@ public class ActionIndicesAdaptor {
 
     });
 
+
     /* ValidateQueryRequest */
     this.methods.put(ValidateQueryRequest.class, (permissions, request) -> {
       ValidateQueryRequest req = (ValidateQueryRequest)request;
       Set<String> permission = permissions.get("IndicesAdminValidateQuery");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     // Method rejected due to return type: java.util.List<org.elasticsearch.action.DocWriteRequest>
     // Method rejected due to return type: java.util.List<org.elasticsearch.action.DocWriteRequest>
@@ -758,50 +1028,76 @@ public class ActionIndicesAdaptor {
 
     });
 
+
     /* DeleteRequest */
     this.methods.put(DeleteRequest.class, (permissions, request) -> {
       DeleteRequest req = (DeleteRequest)request;
       Set<String> permission = permissions.get("IndicesDataWriteDelete");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* ExplainRequest */
     this.methods.put(ExplainRequest.class, (permissions, request) -> {
       ExplainRequest req = (ExplainRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadExplain");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* FieldCapabilitiesRequest */
     this.methods.put(FieldCapabilitiesRequest.class, (permissions, request) -> {
       FieldCapabilitiesRequest req = (FieldCapabilitiesRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadFieldCaps");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* FieldStatsRequest */
     this.methods.put(FieldStatsRequest.class, (permissions, request) -> {
       FieldStatsRequest req = (FieldStatsRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadFieldStats");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* GetRequest */
     this.methods.put(GetRequest.class, (permissions, request) -> {
       GetRequest req = (GetRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadGet");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* MultiGetRequest */
     this.methods.put(MultiGetRequest.class, (permissions, request) -> {
@@ -809,56 +1105,82 @@ public class ActionIndicesAdaptor {
       Set<String> permission = permissions.get("IndicesDataReadMget");
       /* this index request has an getItems() method */
       req.getItems().stream()
-        .flatMap(val -> Stream.of(val.indices()))
+        .flatMap(val -> val.indices().length == 0 ? Stream.of("_all") : Stream.of(val.indices()))
         .map(val -> formatArn("index", val))
         .forEach(permission::add);
 
     });
+
 
     /* IndexRequest */
     this.methods.put(IndexRequest.class, (permissions, request) -> {
       IndexRequest req = (IndexRequest)request;
       Set<String> permission = permissions.get("IndicesDataWriteIndex");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* DeletePipelineRequest */
     this.methods.put(DeletePipelineRequest.class, (permissions, request) -> {
       DeletePipelineRequest req = (DeletePipelineRequest)request;
       Set<String> permission = permissions.get("ClusterAdminIngestPipelineDelete");
       /* this pipeline related request has an getId() method */
-      permission.add(formatArn("pipeline", req.getId()));
+      if (req.getId() == null) {
+        permission.add(formatArn("pipeline", "_all"));
+      } else {
+        permission.add(formatArn("pipeline", req.getId()));
+      }
 
     });
+
 
     /* GetPipelineRequest */
     this.methods.put(GetPipelineRequest.class, (permissions, request) -> {
       GetPipelineRequest req = (GetPipelineRequest)request;
       Set<String> permission = permissions.get("ClusterAdminIngestPipelineGet");
       /* this pipeline related request has an getIds() method */
-      Stream.of(req.getIds()).map(idx -> formatArn("pipeline", idx)).forEach(permission::add);
+      if (req.getIds().length > 0) {
+        Stream.of(req.getIds()).map(idx -> formatArn("pipeline", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("pipeline", "_all"));
+      }
 
     });
+
 
     /* PutPipelineRequest */
     this.methods.put(PutPipelineRequest.class, (permissions, request) -> {
       PutPipelineRequest req = (PutPipelineRequest)request;
       Set<String> permission = permissions.get("ClusterAdminIngestPipelinePut");
       /* this pipeline related request has an getId() method */
-      permission.add(formatArn("pipeline", req.getId()));
+      if (req.getId() == null) {
+        permission.add(formatArn("pipeline", "_all"));
+      } else {
+        permission.add(formatArn("pipeline", req.getId()));
+      }
 
     });
+
 
     /* SimulatePipelineRequest */
     this.methods.put(SimulatePipelineRequest.class, (permissions, request) -> {
       SimulatePipelineRequest req = (SimulatePipelineRequest)request;
       Set<String> permission = permissions.get("ClusterAdminIngestPipelineSimulate");
       /* this pipeline related request has an getId() method */
-      permission.add(formatArn("pipeline", req.getId()));
+      if (req.getId() == null) {
+        permission.add(formatArn("pipeline", "_all"));
+      } else {
+        permission.add(formatArn("pipeline", req.getId()));
+      }
 
     });
+
 
     /* MainRequest */
     this.methods.put(MainRequest.class, (permissions, request) -> {
@@ -869,6 +1191,7 @@ public class ActionIndicesAdaptor {
 
     });
 
+
     /* ClearScrollRequest */
     this.methods.put(ClearScrollRequest.class, (permissions, request) -> {
       ClearScrollRequest req = (ClearScrollRequest)request;
@@ -878,6 +1201,7 @@ public class ActionIndicesAdaptor {
 
     });
 
+
     // Method rejected due to return type: java.util.List<org.elasticsearch.action.search.SearchRequest>
     // Method rejected due to return type: java.util.List<org.elasticsearch.action.search.SearchRequest>
     /* MultiSearchRequest */
@@ -886,20 +1210,26 @@ public class ActionIndicesAdaptor {
       Set<String> permission = permissions.get("IndicesDataReadMsearch");
       /* this index request has an requests() method */
       req.requests().stream()
-        .flatMap(val -> Stream.of(val.indices()))
+        .flatMap(val -> val.indices().length == 0 ? Stream.of("_all") : Stream.of(val.indices()))
         .map(val -> formatArn("index", val))
         .forEach(permission::add);
 
     });
+
 
     /* SearchRequest */
     this.methods.put(SearchRequest.class, (permissions, request) -> {
       SearchRequest req = (SearchRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadSearch");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* SearchScrollRequest */
     this.methods.put(SearchScrollRequest.class, (permissions, request) -> {
@@ -910,6 +1240,7 @@ public class ActionIndicesAdaptor {
 
     });
 
+
     // Method rejected due to return type: java.util.List<org.elasticsearch.action.termvectors.TermVectorsRequest>
     /* MultiTermVectorsRequest */
     this.methods.put(MultiTermVectorsRequest.class, (permissions, request) -> {
@@ -917,54 +1248,79 @@ public class ActionIndicesAdaptor {
       Set<String> permission = permissions.get("IndicesDataReadMtv");
       /* this index request has an getRequests() method */
       req.getRequests().stream()
-        .flatMap(val -> Stream.of(val.indices()))
+        .flatMap(val -> val.indices().length == 0 ? Stream.of("_all") : Stream.of(val.indices()))
         .map(val -> formatArn("index", val))
         .forEach(permission::add);
 
     });
+
 
     /* TermVectorsRequest */
     this.methods.put(TermVectorsRequest.class, (permissions, request) -> {
       TermVectorsRequest req = (TermVectorsRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadTv");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* UpdateRequest */
     this.methods.put(UpdateRequest.class, (permissions, request) -> {
       UpdateRequest req = (UpdateRequest)request;
       Set<String> permission = permissions.get("IndicesDataWriteUpdate");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* DeleteByQueryRequest */
     this.methods.put(DeleteByQueryRequest.class, (permissions, request) -> {
       DeleteByQueryRequest req = (DeleteByQueryRequest)request;
       Set<String> permission = permissions.get("IndicesDataWriteDeleteByquery");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
+
 
     /* ReindexRequest */
     this.methods.put(ReindexRequest.class, (permissions, request) -> {
       ReindexRequest req = (ReindexRequest)request;
       Set<String> permission = permissions.get("IndicesDataWriteReindex");
       /* this index related request has an getDestination() method that returns an IndexRequest */
-      Stream.of(req.getDestination().indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.getDestination().indices().length == 0) {
+        permission.add(formatArn("index", "_all"));
+      } else {
+        Stream.of(req.getDestination().indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      }
 
     });
+
 
     /* UpdateByQueryRequest */
     this.methods.put(UpdateByQueryRequest.class, (permissions, request) -> {
       UpdateByQueryRequest req = (UpdateByQueryRequest)request;
       Set<String> permission = permissions.get("IndicesDataWriteUpdateByquery");
       /* this index related request has an indices() method */
-      Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      if (req.indices().length > 0) {
+        Stream.of(req.indices()).map(idx -> formatArn("index", idx)).forEach(permission::add);
+      } else {
+        permission.add(formatArn("index", "_all"));
+      }
 
     });
   }
