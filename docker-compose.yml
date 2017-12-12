@@ -3,6 +3,7 @@ version: '2'
 volumes:
   elasticsearch_data: {}
   postgres_data: {}
+  nginx_tls: {}
 
 services:
   postgres:
@@ -35,3 +36,14 @@ services:
       dockerfile: Dockerfile
     depends_on:
     - elasticsearch
+
+  nginx:
+    build:
+      context: nginx
+      dockerfile: Dockerfile
+    depends_on:
+    - kibana
+    volumes:
+      - nginx_tls:/etc/nginx/external/
+    ports:
+      - "127.0.0.1:443:443"
