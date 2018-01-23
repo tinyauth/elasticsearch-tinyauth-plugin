@@ -153,7 +153,7 @@ public class ActionIndicesAdaptor {
   private String service;
   private String region;
 
-  private HashMap<Class<?>, PermissionExtractor> methods;
+  private HashMap<String, PermissionExtractor> methods;
 
   private String formatArn() {
     return String.join(":",
@@ -184,7 +184,7 @@ public class ActionIndicesAdaptor {
     this.methods = new HashMap<>();
 
     /* ClusterAllocationExplainRequest */
-    this.methods.put(ClusterAllocationExplainRequest.class, (permissions, request) -> {
+    this.methods.put(ClusterAllocationExplainRequest.class.getCanonicalName(), (permissions, request) -> {
       ClusterAllocationExplainRequest req = (ClusterAllocationExplainRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorAllocationExplain");
       /* this index related request has an getIndex() method */
@@ -198,7 +198,7 @@ public class ActionIndicesAdaptor {
 
 
     /* ClusterHealthRequest */
-    this.methods.put(ClusterHealthRequest.class, (permissions, request) -> {
+    this.methods.put(ClusterHealthRequest.class.getCanonicalName(), (permissions, request) -> {
       ClusterHealthRequest req = (ClusterHealthRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorHealth");
       /* this index related request has an indices() method */
@@ -213,7 +213,7 @@ public class ActionIndicesAdaptor {
 
     // Method rejected due to return type: int
     /* NodesHotThreadsRequest */
-    this.methods.put(NodesHotThreadsRequest.class, (permissions, request) -> {
+    this.methods.put(NodesHotThreadsRequest.class.getCanonicalName(), (permissions, request) -> {
       NodesHotThreadsRequest req = (NodesHotThreadsRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorNodesHotThreads");
       /* WARNING: No particular resource types were identified */
@@ -224,7 +224,7 @@ public class ActionIndicesAdaptor {
 
     // Method rejected due to return type: boolean
     /* NodesInfoRequest */
-    this.methods.put(NodesInfoRequest.class, (permissions, request) -> {
+    this.methods.put(NodesInfoRequest.class.getCanonicalName(), (permissions, request) -> {
       NodesInfoRequest req = (NodesInfoRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorNodesInfo");
       /* WARNING: No particular resource types were identified */
@@ -235,7 +235,7 @@ public class ActionIndicesAdaptor {
 
     // Method rejected due to return type: org.elasticsearch.action.admin.indices.stats.CommonStatsFlags
     /* NodesStatsRequest */
-    this.methods.put(NodesStatsRequest.class, (permissions, request) -> {
+    this.methods.put(NodesStatsRequest.class.getCanonicalName(), (permissions, request) -> {
       NodesStatsRequest req = (NodesStatsRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorNodesStats");
       /* WARNING: No particular resource types were identified */
@@ -245,7 +245,7 @@ public class ActionIndicesAdaptor {
 
 
     /* CancelTasksRequest */
-    this.methods.put(CancelTasksRequest.class, (permissions, request) -> {
+    this.methods.put(CancelTasksRequest.class.getCanonicalName(), (permissions, request) -> {
       CancelTasksRequest req = (CancelTasksRequest)request;
       Set<String> permission = permissions.get("ClusterAdminTasksCancel");
       /* this node related request has an getNodes() method */
@@ -259,7 +259,7 @@ public class ActionIndicesAdaptor {
 
 
     /* GetTaskRequest */
-    this.methods.put(GetTaskRequest.class, (permissions, request) -> {
+    this.methods.put(GetTaskRequest.class.getCanonicalName(), (permissions, request) -> {
       GetTaskRequest req = (GetTaskRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorTaskGet");
       /* WARNING: No particular resource types were identified */
@@ -269,7 +269,7 @@ public class ActionIndicesAdaptor {
 
 
     /* ListTasksRequest */
-    this.methods.put(ListTasksRequest.class, (permissions, request) -> {
+    this.methods.put(ListTasksRequest.class.getCanonicalName(), (permissions, request) -> {
       ListTasksRequest req = (ListTasksRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorTasksLists");
       /* this node related request has an getNodes() method */
@@ -283,7 +283,7 @@ public class ActionIndicesAdaptor {
 
 
     /* RemoteInfoRequest */
-    this.methods.put(RemoteInfoRequest.class, (permissions, request) -> {
+    this.methods.put(RemoteInfoRequest.class.getCanonicalName(), (permissions, request) -> {
       RemoteInfoRequest req = (RemoteInfoRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorRemoteInfo");
       /* WARNING: No particular resource types were identified */
@@ -293,7 +293,7 @@ public class ActionIndicesAdaptor {
 
 
     /* DeleteRepositoryRequest */
-    this.methods.put(DeleteRepositoryRequest.class, (permissions, request) -> {
+    this.methods.put(DeleteRepositoryRequest.class.getCanonicalName(), (permissions, request) -> {
       DeleteRepositoryRequest req = (DeleteRepositoryRequest)request;
       Set<String> permission = permissions.get("ClusterAdminRepositoryDelete");
       /* this repository related request has an name() method */
@@ -307,7 +307,7 @@ public class ActionIndicesAdaptor {
 
 
     /* GetRepositoriesRequest */
-    this.methods.put(GetRepositoriesRequest.class, (permissions, request) -> {
+    this.methods.put(GetRepositoriesRequest.class.getCanonicalName(), (permissions, request) -> {
       GetRepositoriesRequest req = (GetRepositoriesRequest)request;
       Set<String> permission = permissions.get("ClusterAdminRepositoryGet");
       /* this repository related request has an repositories() method */
@@ -321,7 +321,7 @@ public class ActionIndicesAdaptor {
 
 
     /* PutRepositoryRequest */
-    this.methods.put(PutRepositoryRequest.class, (permissions, request) -> {
+    this.methods.put(PutRepositoryRequest.class.getCanonicalName(), (permissions, request) -> {
       PutRepositoryRequest req = (PutRepositoryRequest)request;
       Set<String> permission = permissions.get("ClusterAdminRepositoryPut");
       /* this repository related request has an name() method */
@@ -335,7 +335,7 @@ public class ActionIndicesAdaptor {
 
 
     /* VerifyRepositoryRequest */
-    this.methods.put(VerifyRepositoryRequest.class, (permissions, request) -> {
+    this.methods.put(VerifyRepositoryRequest.class.getCanonicalName(), (permissions, request) -> {
       VerifyRepositoryRequest req = (VerifyRepositoryRequest)request;
       Set<String> permission = permissions.get("ClusterAdminRepositoryVerify");
       /* this repository related request has an name() method */
@@ -349,7 +349,7 @@ public class ActionIndicesAdaptor {
 
 
     /* ClusterRerouteRequest */
-    this.methods.put(ClusterRerouteRequest.class, (permissions, request) -> {
+    this.methods.put(ClusterRerouteRequest.class.getCanonicalName(), (permissions, request) -> {
       ClusterRerouteRequest req = (ClusterRerouteRequest)request;
       Set<String> permission = permissions.get("ClusterAdminReroute");
       /* WARNING: No particular resource types were identified */
@@ -359,7 +359,7 @@ public class ActionIndicesAdaptor {
 
 
     /* ClusterUpdateSettingsRequest */
-    this.methods.put(ClusterUpdateSettingsRequest.class, (permissions, request) -> {
+    this.methods.put(ClusterUpdateSettingsRequest.class.getCanonicalName(), (permissions, request) -> {
       ClusterUpdateSettingsRequest req = (ClusterUpdateSettingsRequest)request;
       Set<String> permission = permissions.get("ClusterAdminSettingsUpdate");
       /* WARNING: No particular resource types were identified */
@@ -369,7 +369,7 @@ public class ActionIndicesAdaptor {
 
 
     /* ClusterSearchShardsRequest */
-    this.methods.put(ClusterSearchShardsRequest.class, (permissions, request) -> {
+    this.methods.put(ClusterSearchShardsRequest.class.getCanonicalName(), (permissions, request) -> {
       ClusterSearchShardsRequest req = (ClusterSearchShardsRequest)request;
       Set<String> permission = permissions.get("IndicesAdminShardsSearchShards");
       /* this index related request has an indices() method */
@@ -383,7 +383,7 @@ public class ActionIndicesAdaptor {
 
 
     /* CreateSnapshotRequest */
-    this.methods.put(CreateSnapshotRequest.class, (permissions, request) -> {
+    this.methods.put(CreateSnapshotRequest.class.getCanonicalName(), (permissions, request) -> {
       CreateSnapshotRequest req = (CreateSnapshotRequest)request;
       Set<String> permission = permissions.get("ClusterAdminSnapshotCreate");
       /* this index related request has an indices() method */
@@ -404,7 +404,7 @@ public class ActionIndicesAdaptor {
 
 
     /* DeleteSnapshotRequest */
-    this.methods.put(DeleteSnapshotRequest.class, (permissions, request) -> {
+    this.methods.put(DeleteSnapshotRequest.class.getCanonicalName(), (permissions, request) -> {
       DeleteSnapshotRequest req = (DeleteSnapshotRequest)request;
       Set<String> permission = permissions.get("ClusterAdminSnapshotDelete");
       /* this snapshot related request has an snapshot() method */
@@ -418,7 +418,7 @@ public class ActionIndicesAdaptor {
 
 
     /* GetSnapshotsRequest */
-    this.methods.put(GetSnapshotsRequest.class, (permissions, request) -> {
+    this.methods.put(GetSnapshotsRequest.class.getCanonicalName(), (permissions, request) -> {
       GetSnapshotsRequest req = (GetSnapshotsRequest)request;
       Set<String> permission = permissions.get("ClusterAdminSnapshotGet");
       /* this snapshot related request has an snapshots() method */
@@ -432,7 +432,7 @@ public class ActionIndicesAdaptor {
 
 
     /* RestoreSnapshotRequest */
-    this.methods.put(RestoreSnapshotRequest.class, (permissions, request) -> {
+    this.methods.put(RestoreSnapshotRequest.class.getCanonicalName(), (permissions, request) -> {
       RestoreSnapshotRequest req = (RestoreSnapshotRequest)request;
       Set<String> permission = permissions.get("ClusterAdminSnapshotRestore");
       /* this index related request has an indices() method */
@@ -453,7 +453,7 @@ public class ActionIndicesAdaptor {
 
 
     /* SnapshotsStatusRequest */
-    this.methods.put(SnapshotsStatusRequest.class, (permissions, request) -> {
+    this.methods.put(SnapshotsStatusRequest.class.getCanonicalName(), (permissions, request) -> {
       SnapshotsStatusRequest req = (SnapshotsStatusRequest)request;
       Set<String> permission = permissions.get("ClusterAdminSnapshotStatus");
       /* this snapshot related request has an snapshots() method */
@@ -467,7 +467,7 @@ public class ActionIndicesAdaptor {
 
 
     /* ClusterStateRequest */
-    this.methods.put(ClusterStateRequest.class, (permissions, request) -> {
+    this.methods.put(ClusterStateRequest.class.getCanonicalName(), (permissions, request) -> {
       ClusterStateRequest req = (ClusterStateRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorState");
       /* this index related request has an indices() method */
@@ -481,7 +481,7 @@ public class ActionIndicesAdaptor {
 
 
     /* ClusterStatsRequest */
-    this.methods.put(ClusterStatsRequest.class, (permissions, request) -> {
+    this.methods.put(ClusterStatsRequest.class.getCanonicalName(), (permissions, request) -> {
       ClusterStatsRequest req = (ClusterStatsRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorStats");
       /* WARNING: No particular resource types were identified */
@@ -491,7 +491,7 @@ public class ActionIndicesAdaptor {
 
 
     /* DeleteStoredScriptRequest */
-    this.methods.put(DeleteStoredScriptRequest.class, (permissions, request) -> {
+    this.methods.put(DeleteStoredScriptRequest.class.getCanonicalName(), (permissions, request) -> {
       DeleteStoredScriptRequest req = (DeleteStoredScriptRequest)request;
       Set<String> permission = permissions.get("ClusterAdminScriptDelete");
       /* this stored-script related request has an id() method */
@@ -505,7 +505,7 @@ public class ActionIndicesAdaptor {
 
 
     /* GetStoredScriptRequest */
-    this.methods.put(GetStoredScriptRequest.class, (permissions, request) -> {
+    this.methods.put(GetStoredScriptRequest.class.getCanonicalName(), (permissions, request) -> {
       GetStoredScriptRequest req = (GetStoredScriptRequest)request;
       Set<String> permission = permissions.get("ClusterAdminScriptGet");
       /* this stored-script related request has an id() method */
@@ -519,7 +519,7 @@ public class ActionIndicesAdaptor {
 
 
     /* PutStoredScriptRequest */
-    this.methods.put(PutStoredScriptRequest.class, (permissions, request) -> {
+    this.methods.put(PutStoredScriptRequest.class.getCanonicalName(), (permissions, request) -> {
       PutStoredScriptRequest req = (PutStoredScriptRequest)request;
       Set<String> permission = permissions.get("ClusterAdminScriptPut");
       /* this stored-script related request has an id() method */
@@ -533,7 +533,7 @@ public class ActionIndicesAdaptor {
 
 
     /* PendingClusterTasksRequest */
-    this.methods.put(PendingClusterTasksRequest.class, (permissions, request) -> {
+    this.methods.put(PendingClusterTasksRequest.class.getCanonicalName(), (permissions, request) -> {
       PendingClusterTasksRequest req = (PendingClusterTasksRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorTask");
       /* WARNING: No particular resource types were identified */
@@ -543,7 +543,7 @@ public class ActionIndicesAdaptor {
 
 
     /* IndicesAliasesRequest */
-    this.methods.put(IndicesAliasesRequest.class, (permissions, request) -> {
+    this.methods.put(IndicesAliasesRequest.class.getCanonicalName(), (permissions, request) -> {
       IndicesAliasesRequest req = (IndicesAliasesRequest)request;
       Set<String> permission = permissions.get("IndicesAdminAliases");
       /* WARNING: No particular resource types were identified */
@@ -553,7 +553,7 @@ public class ActionIndicesAdaptor {
 
 
     /* GetAliasesRequest */
-    this.methods.put(GetAliasesRequest.class, (permissions, request) -> {
+    this.methods.put(GetAliasesRequest.class.getCanonicalName(), (permissions, request) -> {
       GetAliasesRequest req = (GetAliasesRequest)request;
       Set<String> permission = permissions.get("IndicesAdminAliasesExists");
       /* this index related request has an indices() method */
@@ -567,7 +567,7 @@ public class ActionIndicesAdaptor {
 
 
     /* GetAliasesRequest */
-    this.methods.put(GetAliasesRequest.class, (permissions, request) -> {
+    this.methods.put(GetAliasesRequest.class.getCanonicalName(), (permissions, request) -> {
       GetAliasesRequest req = (GetAliasesRequest)request;
       Set<String> permission = permissions.get("IndicesAdminAliasesGet");
       /* this index related request has an indices() method */
@@ -581,7 +581,7 @@ public class ActionIndicesAdaptor {
 
 
     /* AnalyzeRequest */
-    this.methods.put(AnalyzeRequest.class, (permissions, request) -> {
+    this.methods.put(AnalyzeRequest.class.getCanonicalName(), (permissions, request) -> {
       AnalyzeRequest req = (AnalyzeRequest)request;
       Set<String> permission = permissions.get("IndicesAdminAnalyze");
       /* this index related request has an indices() method */
@@ -595,7 +595,7 @@ public class ActionIndicesAdaptor {
 
 
     /* ClearIndicesCacheRequest */
-    this.methods.put(ClearIndicesCacheRequest.class, (permissions, request) -> {
+    this.methods.put(ClearIndicesCacheRequest.class.getCanonicalName(), (permissions, request) -> {
       ClearIndicesCacheRequest req = (ClearIndicesCacheRequest)request;
       Set<String> permission = permissions.get("IndicesAdminCacheClear");
       /* this index related request has an indices() method */
@@ -609,7 +609,7 @@ public class ActionIndicesAdaptor {
 
 
     /* CloseIndexRequest */
-    this.methods.put(CloseIndexRequest.class, (permissions, request) -> {
+    this.methods.put(CloseIndexRequest.class.getCanonicalName(), (permissions, request) -> {
       CloseIndexRequest req = (CloseIndexRequest)request;
       Set<String> permission = permissions.get("IndicesAdminClose");
       /* this index related request has an indices() method */
@@ -623,7 +623,7 @@ public class ActionIndicesAdaptor {
 
 
     /* CreateIndexRequest */
-    this.methods.put(CreateIndexRequest.class, (permissions, request) -> {
+    this.methods.put(CreateIndexRequest.class.getCanonicalName(), (permissions, request) -> {
       CreateIndexRequest req = (CreateIndexRequest)request;
       Set<String> permission = permissions.get("IndicesAdminCreate");
       /* this index related request has an indices() method */
@@ -637,7 +637,7 @@ public class ActionIndicesAdaptor {
 
 
     /* DeleteIndexRequest */
-    this.methods.put(DeleteIndexRequest.class, (permissions, request) -> {
+    this.methods.put(DeleteIndexRequest.class.getCanonicalName(), (permissions, request) -> {
       DeleteIndexRequest req = (DeleteIndexRequest)request;
       Set<String> permission = permissions.get("IndicesAdminDelete");
       /* this index related request has an indices() method */
@@ -651,7 +651,7 @@ public class ActionIndicesAdaptor {
 
 
     /* IndicesExistsRequest */
-    this.methods.put(IndicesExistsRequest.class, (permissions, request) -> {
+    this.methods.put(IndicesExistsRequest.class.getCanonicalName(), (permissions, request) -> {
       IndicesExistsRequest req = (IndicesExistsRequest)request;
       Set<String> permission = permissions.get("IndicesAdminExists");
       /* this index related request has an indices() method */
@@ -665,7 +665,7 @@ public class ActionIndicesAdaptor {
 
 
     /* TypesExistsRequest */
-    this.methods.put(TypesExistsRequest.class, (permissions, request) -> {
+    this.methods.put(TypesExistsRequest.class.getCanonicalName(), (permissions, request) -> {
       TypesExistsRequest req = (TypesExistsRequest)request;
       Set<String> permission = permissions.get("IndicesAdminTypesExists");
       /* this index related request has an indices() method */
@@ -679,7 +679,7 @@ public class ActionIndicesAdaptor {
 
 
     /* FlushRequest */
-    this.methods.put(FlushRequest.class, (permissions, request) -> {
+    this.methods.put(FlushRequest.class.getCanonicalName(), (permissions, request) -> {
       FlushRequest req = (FlushRequest)request;
       Set<String> permission = permissions.get("IndicesAdminFlush");
       /* this index related request has an indices() method */
@@ -693,7 +693,7 @@ public class ActionIndicesAdaptor {
 
 
     /* SyncedFlushRequest */
-    this.methods.put(SyncedFlushRequest.class, (permissions, request) -> {
+    this.methods.put(SyncedFlushRequest.class.getCanonicalName(), (permissions, request) -> {
       SyncedFlushRequest req = (SyncedFlushRequest)request;
       Set<String> permission = permissions.get("IndicesAdminSyncedFlush");
       /* this index related request has an indices() method */
@@ -707,7 +707,7 @@ public class ActionIndicesAdaptor {
 
 
     /* ForceMergeRequest */
-    this.methods.put(ForceMergeRequest.class, (permissions, request) -> {
+    this.methods.put(ForceMergeRequest.class.getCanonicalName(), (permissions, request) -> {
       ForceMergeRequest req = (ForceMergeRequest)request;
       Set<String> permission = permissions.get("IndicesAdminForcemerge");
       /* this index related request has an indices() method */
@@ -721,7 +721,7 @@ public class ActionIndicesAdaptor {
 
 
     /* GetIndexRequest */
-    this.methods.put(GetIndexRequest.class, (permissions, request) -> {
+    this.methods.put(GetIndexRequest.class.getCanonicalName(), (permissions, request) -> {
       GetIndexRequest req = (GetIndexRequest)request;
       Set<String> permission = permissions.get("IndicesAdminGet");
       /* this index related request has an indices() method */
@@ -735,7 +735,7 @@ public class ActionIndicesAdaptor {
 
 
     /* GetFieldMappingsRequest */
-    this.methods.put(GetFieldMappingsRequest.class, (permissions, request) -> {
+    this.methods.put(GetFieldMappingsRequest.class.getCanonicalName(), (permissions, request) -> {
       GetFieldMappingsRequest req = (GetFieldMappingsRequest)request;
       Set<String> permission = permissions.get("IndicesAdminMappingsFieldsGet");
       /* this index related request has an indices() method */
@@ -749,7 +749,7 @@ public class ActionIndicesAdaptor {
 
 
     /* GetMappingsRequest */
-    this.methods.put(GetMappingsRequest.class, (permissions, request) -> {
+    this.methods.put(GetMappingsRequest.class.getCanonicalName(), (permissions, request) -> {
       GetMappingsRequest req = (GetMappingsRequest)request;
       Set<String> permission = permissions.get("IndicesAdminMappingsGet");
       /* this index related request has an indices() method */
@@ -763,7 +763,7 @@ public class ActionIndicesAdaptor {
 
 
     /* PutMappingRequest */
-    this.methods.put(PutMappingRequest.class, (permissions, request) -> {
+    this.methods.put(PutMappingRequest.class.getCanonicalName(), (permissions, request) -> {
       PutMappingRequest req = (PutMappingRequest)request;
       Set<String> permission = permissions.get("IndicesAdminMappingPut");
       /* this index related request has an indices() method */
@@ -777,7 +777,7 @@ public class ActionIndicesAdaptor {
 
 
     /* OpenIndexRequest */
-    this.methods.put(OpenIndexRequest.class, (permissions, request) -> {
+    this.methods.put(OpenIndexRequest.class.getCanonicalName(), (permissions, request) -> {
       OpenIndexRequest req = (OpenIndexRequest)request;
       Set<String> permission = permissions.get("IndicesAdminOpen");
       /* this index related request has an indices() method */
@@ -791,7 +791,7 @@ public class ActionIndicesAdaptor {
 
 
     /* RecoveryRequest */
-    this.methods.put(RecoveryRequest.class, (permissions, request) -> {
+    this.methods.put(RecoveryRequest.class.getCanonicalName(), (permissions, request) -> {
       RecoveryRequest req = (RecoveryRequest)request;
       Set<String> permission = permissions.get("IndicesMonitorRecovery");
       /* this index related request has an indices() method */
@@ -805,7 +805,7 @@ public class ActionIndicesAdaptor {
 
 
     /* RefreshRequest */
-    this.methods.put(RefreshRequest.class, (permissions, request) -> {
+    this.methods.put(RefreshRequest.class.getCanonicalName(), (permissions, request) -> {
       RefreshRequest req = (RefreshRequest)request;
       Set<String> permission = permissions.get("IndicesAdminRefresh");
       /* this index related request has an indices() method */
@@ -819,7 +819,7 @@ public class ActionIndicesAdaptor {
 
 
     /* RolloverRequest */
-    this.methods.put(RolloverRequest.class, (permissions, request) -> {
+    this.methods.put(RolloverRequest.class.getCanonicalName(), (permissions, request) -> {
       RolloverRequest req = (RolloverRequest)request;
       Set<String> permission = permissions.get("IndicesAdminRollover");
       /* this index related request has an indices() method */
@@ -833,7 +833,7 @@ public class ActionIndicesAdaptor {
 
 
     /* IndicesSegmentsRequest */
-    this.methods.put(IndicesSegmentsRequest.class, (permissions, request) -> {
+    this.methods.put(IndicesSegmentsRequest.class.getCanonicalName(), (permissions, request) -> {
       IndicesSegmentsRequest req = (IndicesSegmentsRequest)request;
       Set<String> permission = permissions.get("IndicesMonitorSegments");
       /* this index related request has an indices() method */
@@ -847,7 +847,7 @@ public class ActionIndicesAdaptor {
 
 
     /* GetSettingsRequest */
-    this.methods.put(GetSettingsRequest.class, (permissions, request) -> {
+    this.methods.put(GetSettingsRequest.class.getCanonicalName(), (permissions, request) -> {
       GetSettingsRequest req = (GetSettingsRequest)request;
       Set<String> permission = permissions.get("IndicesMonitorSettingsGet");
       /* this index related request has an indices() method */
@@ -861,7 +861,7 @@ public class ActionIndicesAdaptor {
 
 
     /* UpdateSettingsRequest */
-    this.methods.put(UpdateSettingsRequest.class, (permissions, request) -> {
+    this.methods.put(UpdateSettingsRequest.class.getCanonicalName(), (permissions, request) -> {
       UpdateSettingsRequest req = (UpdateSettingsRequest)request;
       Set<String> permission = permissions.get("IndicesAdminSettingsUpdate");
       /* this index related request has an indices() method */
@@ -875,7 +875,7 @@ public class ActionIndicesAdaptor {
 
 
     /* IndicesShardStoresRequest */
-    this.methods.put(IndicesShardStoresRequest.class, (permissions, request) -> {
+    this.methods.put(IndicesShardStoresRequest.class.getCanonicalName(), (permissions, request) -> {
       IndicesShardStoresRequest req = (IndicesShardStoresRequest)request;
       Set<String> permission = permissions.get("IndicesMonitorShardStores");
       /* this index related request has an indices() method */
@@ -889,7 +889,7 @@ public class ActionIndicesAdaptor {
 
 
     /* ShrinkRequest */
-    this.methods.put(ShrinkRequest.class, (permissions, request) -> {
+    this.methods.put(ShrinkRequest.class.getCanonicalName(), (permissions, request) -> {
       ShrinkRequest req = (ShrinkRequest)request;
       Set<String> permission = permissions.get("IndicesAdminShrink");
       /* this index related request has an indices() method */
@@ -903,7 +903,7 @@ public class ActionIndicesAdaptor {
 
 
     /* IndicesStatsRequest */
-    this.methods.put(IndicesStatsRequest.class, (permissions, request) -> {
+    this.methods.put(IndicesStatsRequest.class.getCanonicalName(), (permissions, request) -> {
       IndicesStatsRequest req = (IndicesStatsRequest)request;
       Set<String> permission = permissions.get("IndicesMonitorStats");
       /* this index related request has an indices() method */
@@ -917,7 +917,7 @@ public class ActionIndicesAdaptor {
 
 
     /* DeleteIndexTemplateRequest */
-    this.methods.put(DeleteIndexTemplateRequest.class, (permissions, request) -> {
+    this.methods.put(DeleteIndexTemplateRequest.class.getCanonicalName(), (permissions, request) -> {
       DeleteIndexTemplateRequest req = (DeleteIndexTemplateRequest)request;
       Set<String> permission = permissions.get("IndicesAdminTemplateDelete");
       /* this index-template related request has an name() method */
@@ -931,7 +931,7 @@ public class ActionIndicesAdaptor {
 
 
     /* GetIndexTemplatesRequest */
-    this.methods.put(GetIndexTemplatesRequest.class, (permissions, request) -> {
+    this.methods.put(GetIndexTemplatesRequest.class.getCanonicalName(), (permissions, request) -> {
       GetIndexTemplatesRequest req = (GetIndexTemplatesRequest)request;
       Set<String> permission = permissions.get("IndicesAdminTemplateGet");
       /* this index-template related request has an names() method */
@@ -945,7 +945,7 @@ public class ActionIndicesAdaptor {
 
 
     /* PutIndexTemplateRequest */
-    this.methods.put(PutIndexTemplateRequest.class, (permissions, request) -> {
+    this.methods.put(PutIndexTemplateRequest.class.getCanonicalName(), (permissions, request) -> {
       PutIndexTemplateRequest req = (PutIndexTemplateRequest)request;
       Set<String> permission = permissions.get("IndicesAdminTemplatePut");
       /* this index related request has an indices() method */
@@ -966,7 +966,7 @@ public class ActionIndicesAdaptor {
 
 
     /* UpgradeStatusRequest */
-    this.methods.put(UpgradeStatusRequest.class, (permissions, request) -> {
+    this.methods.put(UpgradeStatusRequest.class.getCanonicalName(), (permissions, request) -> {
       UpgradeStatusRequest req = (UpgradeStatusRequest)request;
       Set<String> permission = permissions.get("IndicesMonitorUpgrade");
       /* this index related request has an indices() method */
@@ -980,7 +980,7 @@ public class ActionIndicesAdaptor {
 
 
     /* UpgradeRequest */
-    this.methods.put(UpgradeRequest.class, (permissions, request) -> {
+    this.methods.put(UpgradeRequest.class.getCanonicalName(), (permissions, request) -> {
       UpgradeRequest req = (UpgradeRequest)request;
       Set<String> permission = permissions.get("IndicesAdminUpgrade");
       /* this index related request has an indices() method */
@@ -994,7 +994,7 @@ public class ActionIndicesAdaptor {
 
 
     /* UpgradeSettingsRequest */
-    this.methods.put(UpgradeSettingsRequest.class, (permissions, request) -> {
+    this.methods.put(UpgradeSettingsRequest.class.getCanonicalName(), (permissions, request) -> {
       UpgradeSettingsRequest req = (UpgradeSettingsRequest)request;
       Set<String> permission = permissions.get("InternalIndicesAdminUpgrade");
       /* WARNING: No particular resource types were identified */
@@ -1004,7 +1004,7 @@ public class ActionIndicesAdaptor {
 
 
     /* ValidateQueryRequest */
-    this.methods.put(ValidateQueryRequest.class, (permissions, request) -> {
+    this.methods.put(ValidateQueryRequest.class.getCanonicalName(), (permissions, request) -> {
       ValidateQueryRequest req = (ValidateQueryRequest)request;
       Set<String> permission = permissions.get("IndicesAdminValidateQuery");
       /* this index related request has an indices() method */
@@ -1020,7 +1020,7 @@ public class ActionIndicesAdaptor {
     // Method rejected due to return type: java.util.List<org.elasticsearch.action.DocWriteRequest>
     // Method rejected due to return type: java.util.List<org.elasticsearch.action.DocWriteRequest>
     /* BulkRequest */
-    this.methods.put(BulkRequest.class, (permissions, request) -> {
+    this.methods.put(BulkRequest.class.getCanonicalName(), (permissions, request) -> {
       BulkRequest req = (BulkRequest)request;
       Set<String> permission = permissions.get("IndicesDataWriteBulk");
       /* this index related request has an requests() method */
@@ -1030,7 +1030,7 @@ public class ActionIndicesAdaptor {
 
 
     /* DeleteRequest */
-    this.methods.put(DeleteRequest.class, (permissions, request) -> {
+    this.methods.put(DeleteRequest.class.getCanonicalName(), (permissions, request) -> {
       DeleteRequest req = (DeleteRequest)request;
       Set<String> permission = permissions.get("IndicesDataWriteDelete");
       /* this index related request has an indices() method */
@@ -1044,7 +1044,7 @@ public class ActionIndicesAdaptor {
 
 
     /* ExplainRequest */
-    this.methods.put(ExplainRequest.class, (permissions, request) -> {
+    this.methods.put(ExplainRequest.class.getCanonicalName(), (permissions, request) -> {
       ExplainRequest req = (ExplainRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadExplain");
       /* this index related request has an indices() method */
@@ -1058,7 +1058,7 @@ public class ActionIndicesAdaptor {
 
 
     /* FieldCapabilitiesRequest */
-    this.methods.put(FieldCapabilitiesRequest.class, (permissions, request) -> {
+    this.methods.put(FieldCapabilitiesRequest.class.getCanonicalName(), (permissions, request) -> {
       FieldCapabilitiesRequest req = (FieldCapabilitiesRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadFieldCaps");
       /* this index related request has an indices() method */
@@ -1072,7 +1072,7 @@ public class ActionIndicesAdaptor {
 
 
     /* FieldStatsRequest */
-    this.methods.put(FieldStatsRequest.class, (permissions, request) -> {
+    this.methods.put(FieldStatsRequest.class.getCanonicalName(), (permissions, request) -> {
       FieldStatsRequest req = (FieldStatsRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadFieldStats");
       /* this index related request has an indices() method */
@@ -1086,7 +1086,7 @@ public class ActionIndicesAdaptor {
 
 
     /* GetRequest */
-    this.methods.put(GetRequest.class, (permissions, request) -> {
+    this.methods.put(GetRequest.class.getCanonicalName(), (permissions, request) -> {
       GetRequest req = (GetRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadGet");
       /* this index related request has an indices() method */
@@ -1100,7 +1100,7 @@ public class ActionIndicesAdaptor {
 
 
     /* MultiGetRequest */
-    this.methods.put(MultiGetRequest.class, (permissions, request) -> {
+    this.methods.put(MultiGetRequest.class.getCanonicalName(), (permissions, request) -> {
       MultiGetRequest req = (MultiGetRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadMget");
       /* this index request has an getItems() method */
@@ -1113,7 +1113,7 @@ public class ActionIndicesAdaptor {
 
 
     /* IndexRequest */
-    this.methods.put(IndexRequest.class, (permissions, request) -> {
+    this.methods.put(IndexRequest.class.getCanonicalName(), (permissions, request) -> {
       IndexRequest req = (IndexRequest)request;
       Set<String> permission = permissions.get("IndicesDataWriteIndex");
       /* this index related request has an indices() method */
@@ -1127,7 +1127,7 @@ public class ActionIndicesAdaptor {
 
 
     /* DeletePipelineRequest */
-    this.methods.put(DeletePipelineRequest.class, (permissions, request) -> {
+    this.methods.put(DeletePipelineRequest.class.getCanonicalName(), (permissions, request) -> {
       DeletePipelineRequest req = (DeletePipelineRequest)request;
       Set<String> permission = permissions.get("ClusterAdminIngestPipelineDelete");
       /* this pipeline related request has an getId() method */
@@ -1141,7 +1141,7 @@ public class ActionIndicesAdaptor {
 
 
     /* GetPipelineRequest */
-    this.methods.put(GetPipelineRequest.class, (permissions, request) -> {
+    this.methods.put(GetPipelineRequest.class.getCanonicalName(), (permissions, request) -> {
       GetPipelineRequest req = (GetPipelineRequest)request;
       Set<String> permission = permissions.get("ClusterAdminIngestPipelineGet");
       /* this pipeline related request has an getIds() method */
@@ -1155,7 +1155,7 @@ public class ActionIndicesAdaptor {
 
 
     /* PutPipelineRequest */
-    this.methods.put(PutPipelineRequest.class, (permissions, request) -> {
+    this.methods.put(PutPipelineRequest.class.getCanonicalName(), (permissions, request) -> {
       PutPipelineRequest req = (PutPipelineRequest)request;
       Set<String> permission = permissions.get("ClusterAdminIngestPipelinePut");
       /* this pipeline related request has an getId() method */
@@ -1169,7 +1169,7 @@ public class ActionIndicesAdaptor {
 
 
     /* SimulatePipelineRequest */
-    this.methods.put(SimulatePipelineRequest.class, (permissions, request) -> {
+    this.methods.put(SimulatePipelineRequest.class.getCanonicalName(), (permissions, request) -> {
       SimulatePipelineRequest req = (SimulatePipelineRequest)request;
       Set<String> permission = permissions.get("ClusterAdminIngestPipelineSimulate");
       /* this pipeline related request has an getId() method */
@@ -1183,7 +1183,7 @@ public class ActionIndicesAdaptor {
 
 
     /* MainRequest */
-    this.methods.put(MainRequest.class, (permissions, request) -> {
+    this.methods.put(MainRequest.class.getCanonicalName(), (permissions, request) -> {
       MainRequest req = (MainRequest)request;
       Set<String> permission = permissions.get("ClusterMonitorMain");
       /* WARNING: No particular resource types were identified */
@@ -1193,7 +1193,7 @@ public class ActionIndicesAdaptor {
 
 
     /* ClearScrollRequest */
-    this.methods.put(ClearScrollRequest.class, (permissions, request) -> {
+    this.methods.put(ClearScrollRequest.class.getCanonicalName(), (permissions, request) -> {
       ClearScrollRequest req = (ClearScrollRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadScrollClear");
       /* WARNING: No particular resource types were identified */
@@ -1205,7 +1205,7 @@ public class ActionIndicesAdaptor {
     // Method rejected due to return type: java.util.List<org.elasticsearch.action.search.SearchRequest>
     // Method rejected due to return type: java.util.List<org.elasticsearch.action.search.SearchRequest>
     /* MultiSearchRequest */
-    this.methods.put(MultiSearchRequest.class, (permissions, request) -> {
+    this.methods.put(MultiSearchRequest.class.getCanonicalName(), (permissions, request) -> {
       MultiSearchRequest req = (MultiSearchRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadMsearch");
       /* this index request has an requests() method */
@@ -1218,7 +1218,7 @@ public class ActionIndicesAdaptor {
 
 
     /* SearchRequest */
-    this.methods.put(SearchRequest.class, (permissions, request) -> {
+    this.methods.put(SearchRequest.class.getCanonicalName(), (permissions, request) -> {
       SearchRequest req = (SearchRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadSearch");
       /* this index related request has an indices() method */
@@ -1232,7 +1232,7 @@ public class ActionIndicesAdaptor {
 
 
     /* SearchScrollRequest */
-    this.methods.put(SearchScrollRequest.class, (permissions, request) -> {
+    this.methods.put(SearchScrollRequest.class.getCanonicalName(), (permissions, request) -> {
       SearchScrollRequest req = (SearchScrollRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadScroll");
       /* WARNING: No particular resource types were identified */
@@ -1243,7 +1243,7 @@ public class ActionIndicesAdaptor {
 
     // Method rejected due to return type: java.util.List<org.elasticsearch.action.termvectors.TermVectorsRequest>
     /* MultiTermVectorsRequest */
-    this.methods.put(MultiTermVectorsRequest.class, (permissions, request) -> {
+    this.methods.put(MultiTermVectorsRequest.class.getCanonicalName(), (permissions, request) -> {
       MultiTermVectorsRequest req = (MultiTermVectorsRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadMtv");
       /* this index request has an getRequests() method */
@@ -1256,7 +1256,7 @@ public class ActionIndicesAdaptor {
 
 
     /* TermVectorsRequest */
-    this.methods.put(TermVectorsRequest.class, (permissions, request) -> {
+    this.methods.put(TermVectorsRequest.class.getCanonicalName(), (permissions, request) -> {
       TermVectorsRequest req = (TermVectorsRequest)request;
       Set<String> permission = permissions.get("IndicesDataReadTv");
       /* this index related request has an indices() method */
@@ -1270,7 +1270,7 @@ public class ActionIndicesAdaptor {
 
 
     /* UpdateRequest */
-    this.methods.put(UpdateRequest.class, (permissions, request) -> {
+    this.methods.put(UpdateRequest.class.getCanonicalName(), (permissions, request) -> {
       UpdateRequest req = (UpdateRequest)request;
       Set<String> permission = permissions.get("IndicesDataWriteUpdate");
       /* this index related request has an indices() method */
@@ -1284,7 +1284,7 @@ public class ActionIndicesAdaptor {
 
 
     /* DeleteByQueryRequest */
-    this.methods.put(DeleteByQueryRequest.class, (permissions, request) -> {
+    this.methods.put(DeleteByQueryRequest.class.getCanonicalName(), (permissions, request) -> {
       DeleteByQueryRequest req = (DeleteByQueryRequest)request;
       Set<String> permission = permissions.get("IndicesDataWriteDeleteByquery");
       /* this index related request has an indices() method */
@@ -1298,7 +1298,7 @@ public class ActionIndicesAdaptor {
 
 
     /* ReindexRequest */
-    this.methods.put(ReindexRequest.class, (permissions, request) -> {
+    this.methods.put(ReindexRequest.class.getCanonicalName(), (permissions, request) -> {
       ReindexRequest req = (ReindexRequest)request;
       Set<String> permission = permissions.get("IndicesDataWriteReindex");
       /* this index related request has an getDestination() method that returns an IndexRequest */
@@ -1312,7 +1312,7 @@ public class ActionIndicesAdaptor {
 
 
     /* UpdateByQueryRequest */
-    this.methods.put(UpdateByQueryRequest.class, (permissions, request) -> {
+    this.methods.put(UpdateByQueryRequest.class.getCanonicalName(), (permissions, request) -> {
       UpdateByQueryRequest req = (UpdateByQueryRequest)request;
       Set<String> permission = permissions.get("IndicesDataWriteUpdateByquery");
       /* this index related request has an indices() method */
@@ -1323,14 +1323,20 @@ public class ActionIndicesAdaptor {
       }
 
     });
+
+    this.methods.put("org.elasticsearch.action.NodePrometheusMetricsRequest", (permissions, request) -> {
+      Set<String> permission = permissions.get("ClusterMonitorPrometheusMetrics");
+      permission.add(formatArn());
+    });
   }
 
   private void getIndices(Map<String, Set<String>>permissions, ActionRequest req) {
-    PermissionExtractor extractor = methods.get(req.getClass());
+    PermissionExtractor extractor = methods.get(req.getClass().getCanonicalName());
     if (extractor == null) {
       logger.error("Unable to find adaptor for request " + req.getClass() + ". This is a bug!");
       return;
     }
+
     extractor.extract(permissions, req);
   }
 
