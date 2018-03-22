@@ -28,5 +28,5 @@ COPY elasticsearch.yml /usr/share/elasticsearch/config/elasticsearch.yml
 COPY --from=builder /src/build/distributions/tinyauth-0.0.1-SNAPSHOT.zip /
 RUN elasticsearch-plugin install file:/tinyauth-0.0.1-SNAPSHOT.zip
 
-COPY elasticsearch-prometheus-exporter-5.5.2.1-SNAPSHOT.zip /
-RUN elasticsearch-plugin install file:/elasticsearch-prometheus-exporter-5.5.2.1-SNAPSHOT.zip
+#COPY elasticsearch-prometheus-exporter-5.5.2.1-SNAPSHOT.zip /
+#RUN elasticsearch-plugin install file:/elasticsearch-prometheus-exporter-5.5.2.1-SNAPSHOT.zip

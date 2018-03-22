@@ -23,11 +23,11 @@ import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
-import org.apache.http.conn.ssl.TrustAllStrategy;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.logging.log4j.Logger;
 
 import org.elasticsearch.ElasticsearchException;
@@ -90,13 +90,15 @@ public class TinyauthActionFilter extends AbstractComponent implements ActionFil
     accessKeyId = settings.get("tinyauth.access_key_id");
     secretAccessKey = settings.get("tinyauth.secret_access_key");
 
-    if (settings.getAsBoolean("tinyauth.ssl_verify", false)) {
+    if (!settings.getAsBoolean("tinyauth.ssl_verify", false)) {
       logger.error("SSL verification has been disabled (by admin request). Calls to tinyauth service are not protected from MITM attacks.");
 
       try {
-        SSLContext context = SSLContexts.custom().loadTrustMaterial(null, new TrustAllStrategy()).build();
+        SSLContext context = SSLContexts.custom()
+          .loadTrustMaterial(new TrustSelfSignedStrategy())
+          .build();
 
-        Unirest.setHttpClient(HttpClients.custom()
+        Unirest.setAsyncHttpClient(HttpAsyncClients.custom()
           .setSSLContext(context)
           .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
           .build());
